@@ -323,7 +323,7 @@ namespace FLVERtoASCII
             //string s = $"//map//mapstudio//{maps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb";
             Conversion c = new Conversion();
             MSBE test = MSBE.Read(ER_working_dir+ $"//map//mapstudio//{ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb");
-            c.map(ER_working_dir, test, ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key + "_" +mapBox.SelectedItem.ToString().Split(null,',')[0].ToLower());
+            c.map((Games)cb_GameList.SelectedIndex,ER_working_dir, test, ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key + "_" +mapBox.SelectedItem.ToString().Split(null,',')[0].ToLower());
         }
     }
 }

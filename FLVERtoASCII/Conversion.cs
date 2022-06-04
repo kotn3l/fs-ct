@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using SoulsFormats;
 
 
@@ -206,7 +207,7 @@ namespace FLVERtoASCII
             ascii.Clear();
 
         }
-        public void WriteFLVERtoASCIIInOne(string outPath, string fileName, Dictionary<int, List<Matrix4x4>> transform, bool bones = false, bool addRoot = false)
+        public void WriteFLVERtoASCIIInOne(string outPath, string fileName, Dictionary<int, List<Matrix4x4>> transform, List<List<MATBIN>> materialsByModel, bool bones = false, bool addRoot = false)
         {
 
             Dictionary<int, Matrix4x4> transformOne = new Dictionary<int, Matrix4x4>();
@@ -321,19 +322,41 @@ namespace FLVERtoASCII
                 for (int z = 0; z < transform[Model[y].GetHashCode()].Count; z++)
                 {
                     int Tex = 0;
-                    for (int i = 0; i < Model[y].Materials.Count; i++)
+                    for (int i = 0; i < materialsByModel[y].Count; i++)
                     {
-                        Tex++;
+                        for (int l = 0; l < materialsByModel[y][i].Samplers.Count; l++)
+                        {
+                            Tex++;
+                        }
                     }
                     for (int i = 0; i < Model[y].Meshes.Count; i++)
                     {
                         ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name); //mesh name
                         ascii.Add(Model[y].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
                         ascii.Add(Tex.ToString()); //tex count
-                        for (int k = 0; k < Tex; k++)
+                        /*for (int k = 0; k < Tex; k++)
                         {
-                            ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD);
+                            if (Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD == "" || Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD == String.Empty)
+                            {
+                                ascii.Add("placeholder");
+                            }
+                            else ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD);
                             ascii.Add("0");
+                        }*/
+                        for (int k = 0; k < materialsByModel[y].Count; k++)
+                        {
+                            for (int l = 0; l < materialsByModel[y][k].Samplers.Count; l++)
+                            {
+                                ascii.Add(materialsByModel[y][k].Samplers[l].Type);
+                                if (Path.GetFileName(materialsByModel[y][k].Samplers[l].Path) == "" || materialsByModel[y][k].Samplers[l].Path == "")
+                                {
+                                    ascii.Add("UNK");
+                                }
+                                else
+                                {
+                                    ascii.Add(Path.GetFileName(materialsByModel[y][k].Samplers[l].Path));
+                                }
+                            }
                         }
                         ascii.Add(Model[y].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                         for (int j = 0; j < Model[y].Meshes[i].Vertices.Count; j++) //vertices
@@ -854,8 +877,12 @@ namespace FLVERtoASCII
             List<MSBE.Part> parts = new List<MSBE.Part>(msb.Parts.MapPieces);
             //List<Matrix4x4> transforms = new List<Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transforms = new Dictionary<int, List<Matrix4x4>>();
-
             List<string> fails = new List<string>();
+            List<List<MATBIN>> materialsByModel = new List<List<MATBIN>>();
+            BND4 matbnd;
+            matbnd = BND4.Read(erdir + "//material//allmaterial.matbinbnd");
+            string matPathFirst = "";
+            List<string> geoms = new List<string>();
 
             List<Vector3> translations = new List<Vector3>();
             List<Vector3> rotations = new List<Vector3>();
@@ -865,6 +892,35 @@ namespace FLVERtoASCII
             parts.AddRange(msb.Parts.Collisions);
             parts.AddRange(msb.Parts.ConnectCollisions);
             //parts.AddRange(msb.Parts.Unk1s);
+
+            string gameCode = "";
+            string extension = "";
+            switch (game)
+            {
+                case Games.ELDEN_RING:
+                    gameCode = "GR";
+                    extension = "flver";
+                    
+                    matPathFirst = "N:\\GR\\data\\INTERROOT_win64\\material\\matbin";
+                    //mat = MTD.Read(BND4.Read(erdir + "//material//allmaterial.matbinbnd"));
+                    break;
+                case Games.SEKIRO:
+                    gameCode = "SE";
+                    extension = "objbnd";
+                    break;
+                case Games.BLOODBORNE:
+                    gameCode = "SPRJ";
+                    extension = "objbnd";
+                    break;
+                case Games.DARK_SOULS:
+                    gameCode = "DS";
+                    extension = "objbnd";
+                    break;
+                default:
+                    gameCode = "";
+                    extension = "";
+                    break;
+            }
             for (int i = 0; i < parts.Count; i++)
             {
                 pieceNames.Add(parts[i].ModelName);
@@ -876,7 +932,7 @@ namespace FLVERtoASCII
                 {
                     continue;
                 }
-                string firstPart = msb.Models.MapPieces[i].SibPath.Substring(@"N:\GR\data\Model\map\".Length, 12);
+                string firstPart = msb.Models.MapPieces[i].SibPath.Substring($@"N:\{gameCode}\data\Model\map\".Length, 12);
                 string bucket = firstPart.Substring(0,3);
                 string secondPart = msb.Models.MapPieces[i].Name.Substring(1);
                 string fullName = firstPart + "_" + secondPart;
@@ -885,7 +941,7 @@ namespace FLVERtoASCII
                 BND4 bnd = BND4.Read(erdir+fileName);
                 for (int j = 0; j < bnd.Files.Count; j++)
                 {
-                    if (bnd.Files[j].Name.Contains($"{secondPart}.flver"))
+                    if (bnd.Files[j].Name.Contains($"{secondPart}.{extension}"))
                     {
                         model.Add(FLVER2.Read(bnd.Files[j].Bytes));
                         geometry.Add(msb.Models.MapPieces[i].Name, model.Last());
@@ -895,50 +951,111 @@ namespace FLVERtoASCII
             }
             for (int i = 0; i < Model.Count; i++)
             {
+                materialsByModel.Add(new List<MATBIN>());
+                for (int j = 0; j < Model[i].Materials.Count; j++)
+                {
+                    //string[] temp = Model[i].Materials[j].MTD.Split(new string[] { "\\" }, StringSplitOptions.None);
+                    string temp = Model[i].Materials[j].MTD.Substring(23);
+                    //string tempMat = matPathFirst + $"\\{temp[temp.Length-2]}\\{Path.GetFileNameWithoutExtension(temp[temp.Length-1])}.matbin"; //make sure this doesnt throw exception because of invalid index
+                    string tempMat = "";
+                    if (Path.GetExtension(temp) == ".mtd")
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(temp);
+                        string[] tempA = temp.Split(new string[] { "\\" }, StringSplitOptions.None);
+                        temp = "";
+                        for (int x = 1; x < tempA.Length-1; x++)
+                        {
+                            temp += "\\" + tempA[x];
+                        }
+                        temp += "\\matxml\\"+fileName+".matbin";
+                        tempMat = matPathFirst + temp;
+                    }
+                    else if (Path.GetExtension(temp) == ".matxml")
+                    {
+                        tempMat = matPathFirst + Regex.Replace(temp, @"(\.matxml)\b", ".matbin");
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                        
+                    
+                    materialsByModel[i].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == tempMat).FirstOrDefault().Bytes));
+
+                }
                 transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
                 transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
-            WriteFLVERtoASCIIInOne(erdir, outFileName+"_base", transforms, true, true);
+            //WriteFLVERtoASCIIInOne(erdir, outFileName+"_base", transforms, true, true);
             model.Clear();
             transforms.Clear();
 
             switch (game)
             {
                 case Games.ELDEN_RING:
-
-                    break;
-                default:
-                    break;
-            }
-
-            string geomFolder = Path.Combine(erdir, "asset", "aeg");
-            for (int i = 0; i < msb.Models.Objects.Count; i++)
-            {
-                if (!pieceNames.Contains(msb.Models.Objects[i].Name))
-                {
-                    continue;
-                }
-                string start = msb.Models.Objects[i].Name.Substring(0,6);
-                string fileName = $"/asset/aeg/{start}/{msb.Models.Objects[i].Name}.geombnd";
-                BND4 bnd = BND4.Read(erdir + fileName.ToLower());
-                for (int j = 0; j < bnd.Files.Count; j++)
-                {
-                    try
+                    string geomFolder = Path.Combine(erdir, "asset", "aeg");
+                    for (int i = 0; i < msb.Models.Objects.Count; i++)
                     {
-                        if (bnd.Files[j].Name.Contains($"{msb.Models.Objects[i].Name}.flver"))
+                        if (!pieceNames.Contains(msb.Models.Objects[i].Name))
                         {
-                            model.Add(FLVER2.Read(bnd.Files[j].Bytes));
-                            geometry.Add(msb.Models.Objects[i].Name, model.Last());
+                            continue;
+                        }
+                        string start = msb.Models.Objects[i].Name.Substring(0, 6);
+                        string fileName = $"/asset/aeg/{start}/{msb.Models.Objects[i].Name}.geombnd";
+                        BND4 bnd = BND4.Read(erdir + fileName.ToLower());
+                        for (int j = 0; j < bnd.Files.Count; j++)
+                        {
+                            try
+                            {
+                                if (bnd.Files[j].Name.Contains($"{msb.Models.Objects[i].Name}.flver"))
+                                {
+                                    geoms.Add(bnd.Files[j].Name);
+                                    model.Add(FLVER2.Read(bnd.Files[j].Bytes));
+                                    geometry.Add(msb.Models.Objects[i].Name, model.Last());
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                fails.Add(bnd.Files[j].Name);
+                                continue;
+                            }
+
                         }
                     }
-                    catch (Exception)
+                    break;
+                default:
+                    string objFolder = Path.Combine(erdir, "obj");
+                    for (int i = 0; i < msb.Models.Objects.Count; i++)
                     {
-                        fails.Add(bnd.Files[j].Name);
-                        continue;
+                        if (!pieceNames.Contains(msb.Models.Objects[i].Name))
+                        {
+                            continue;
+                        }
+                        string start = msb.Models.Objects[i].Name.Substring(0, 6);
+                        string fileName = $"/asset/aeg/{start}/{msb.Models.Objects[i].Name}.geombnd";
+                        BND4 bnd = BND4.Read(erdir + fileName.ToLower());
+                        for (int j = 0; j < bnd.Files.Count; j++)
+                        {
+                            try
+                            {
+                                if (bnd.Files[j].Name.Contains($"{msb.Models.Objects[i].Name}.flver"))
+                                {
+                                    model.Add(FLVER2.Read(bnd.Files[j].Bytes));
+                                    geometry.Add(msb.Models.Objects[i].Name, model.Last());
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                fails.Add(bnd.Files[j].Name);
+                                continue;
+                            }
+
+                        }
                     }
-                    
-                }
+                    break;
             }
+
+            
             for (int i = 0; i < parts.Count; i++)
             {
                 FLVER2 geom;
@@ -963,6 +1080,7 @@ namespace FLVERtoASCII
                     Matrix4x4.CreateTranslation(new Vector3(-parts[i].Position.X, parts[i].Position.Y, parts[i].Position.Z)); //parts[i].Position
             }
 
+
             int max = transforms.Max(e => e.Value.Count);
 
             List<Dictionary<int, List<Matrix4x4>>> transformSplit = new List<Dictionary<int, List<Matrix4x4>>>((max/1)+2);
@@ -986,7 +1104,7 @@ namespace FLVERtoASCII
                 if (transformSplit[i].Count > 0)
                 {
                     //string see = "chapel" + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count);
-                    WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], true, true);
+                    WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materialsByModel, true, true);
                 }
             }
             ;
