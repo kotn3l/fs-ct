@@ -207,7 +207,7 @@ namespace FLVERtoASCII
             ascii.Clear();
 
         }
-        public void WriteFLVERtoASCIIInOne(string outPath, string fileName, Dictionary<int, List<Matrix4x4>> transform, List<List<MATBIN>> materialsByModel, bool bones = false, bool addRoot = false)
+        public void WriteFLVERtoASCIIInOne(string outPath, string fileName, Dictionary<int, List<Matrix4x4>> transform, Dictionary<int, List<MATBIN>> material, bool bones = false, bool addRoot = false)
         {
 
             Dictionary<int, Matrix4x4> transformOne = new Dictionary<int, Matrix4x4>();
@@ -315,16 +315,16 @@ namespace FLVERtoASCII
             ascii.Add(MeshSum.ToString());
             for (int y = 0; y < Model.Count; y++)
             {
-                if (!transform.ContainsKey(Model[y].GetHashCode()))
+                if (!transform.ContainsKey(Model[y].GetHashCode())) //if model is not even on the map, skip
                 {
                     continue;
                 }
                 for (int z = 0; z < transform[Model[y].GetHashCode()].Count; z++)
                 {
                     int Tex = 0;
-                    for (int i = 0; i < materialsByModel[y].Count; i++)
+                    for (int i = 0; i < material[Model[y].GetHashCode()].Count; i++)
                     {
-                        for (int l = 0; l < materialsByModel[y][i].Samplers.Count; l++)
+                        for (int l = 0; l < material[Model[y].GetHashCode()][i].Samplers.Count; l++)
                         {
                             Tex++;
                         }
@@ -334,27 +334,18 @@ namespace FLVERtoASCII
                         ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name); //mesh name
                         ascii.Add(Model[y].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
                         ascii.Add(Tex.ToString()); //tex count
-                        /*for (int k = 0; k < Tex; k++)
+                        for (int k = 0; k < material[Model[y].GetHashCode()].Count; k++)
                         {
-                            if (Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD == "" || Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD == String.Empty)
+                            for (int l = 0; l < material[Model[y].GetHashCode()][k].Samplers.Count; l++)
                             {
-                                ascii.Add("placeholder");
-                            }
-                            else ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].MTD);
-                            ascii.Add("0");
-                        }*/
-                        for (int k = 0; k < materialsByModel[y].Count; k++)
-                        {
-                            for (int l = 0; l < materialsByModel[y][k].Samplers.Count; l++)
-                            {
-                                ascii.Add(materialsByModel[y][k].Samplers[l].Type);
-                                if (Path.GetFileName(materialsByModel[y][k].Samplers[l].Path) == "" || materialsByModel[y][k].Samplers[l].Path == "")
+                                ascii.Add(material[Model[y].GetHashCode()][k].Samplers[l].Type);
+                                if (Path.GetFileName(material[Model[y].GetHashCode()][k].Samplers[l].Path) == "" || material[Model[y].GetHashCode()][k].Samplers[l].Path == "")
                                 {
                                     ascii.Add("UNK");
                                 }
                                 else
                                 {
-                                    ascii.Add(Path.GetFileName(materialsByModel[y][k].Samplers[l].Path));
+                                    ascii.Add(Path.GetFileName(material[Model[y].GetHashCode()][k].Samplers[l].Path));
                                 }
                             }
                         }
@@ -370,20 +361,10 @@ namespace FLVERtoASCII
                                                                                             Model[y].Meshes[i].Vertices[j].Normal.Z), 
                                                                                             transform[Model[y].GetHashCode()][z]);
 
-                            /*ascii.Add(-Model[y].Meshes[i].Vertices[j].Position.X + " " +
-                                      Model[y].Meshes[i].Vertices[j].Position.Y + " " +
-                                      Model[y].Meshes[i].Vertices[j].Position.Z);*/
-                            /*ascii.Add((transformedPos.X - Model[y].Meshes[i].Vertices[j].Position.X) + " " +
-                                      (transformedPos.Y + Model[y].Meshes[i].Vertices[j].Position.Y) + " " +
-                                      (transformedPos.Z + Model[y].Meshes[i].Vertices[j].Position.Z));*/
                             ascii.Add(transformedPos.X + " " +
                                       transformedPos.Y + " " +
                                       transformedPos.Z);
                             //vert norm
-
-                            /*ascii.Add(-Model[e].Meshes[i].Vertices[j].Normal.X + " " +
-                                      Model[e].Meshes[i].Vertices[j].Normal.Y + " " +
-                                      Model[e].Meshes[i].Vertices[j].Normal.Z);*/
 
                             ascii.Add(transformedNormal.X + " " +
                                       transformedNormal.Y + " " +
@@ -877,8 +858,10 @@ namespace FLVERtoASCII
             List<MSBE.Part> parts = new List<MSBE.Part>(msb.Parts.MapPieces);
             //List<Matrix4x4> transforms = new List<Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transforms = new Dictionary<int, List<Matrix4x4>>();
+            Dictionary<int, List<MATBIN>> materials = new Dictionary<int, List<MATBIN>>();
+
             List<string> fails = new List<string>();
-            List<List<MATBIN>> materialsByModel = new List<List<MATBIN>>();
+
             BND4 matbnd;
             matbnd = BND4.Read(erdir + "//material//allmaterial.matbinbnd");
             string matPathFirst = "";
@@ -900,7 +883,6 @@ namespace FLVERtoASCII
                 case Games.ELDEN_RING:
                     gameCode = "GR";
                     extension = "flver";
-                    
                     matPathFirst = "N:\\GR\\data\\INTERROOT_win64\\material\\matbin";
                     //mat = MTD.Read(BND4.Read(erdir + "//material//allmaterial.matbinbnd"));
                     break;
@@ -951,44 +933,18 @@ namespace FLVERtoASCII
             }
             for (int i = 0; i < Model.Count; i++)
             {
-                materialsByModel.Add(new List<MATBIN>());
+                materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
                 for (int j = 0; j < Model[i].Materials.Count; j++)
                 {
-                    //string[] temp = Model[i].Materials[j].MTD.Split(new string[] { "\\" }, StringSplitOptions.None);
-                    string temp = Model[i].Materials[j].MTD.Substring(23);
-                    //string tempMat = matPathFirst + $"\\{temp[temp.Length-2]}\\{Path.GetFileNameWithoutExtension(temp[temp.Length-1])}.matbin"; //make sure this doesnt throw exception because of invalid index
-                    string tempMat = "";
-                    if (Path.GetExtension(temp) == ".mtd")
-                    {
-                        string fileName = Path.GetFileNameWithoutExtension(temp);
-                        string[] tempA = temp.Split(new string[] { "\\" }, StringSplitOptions.None);
-                        temp = "";
-                        for (int x = 1; x < tempA.Length-1; x++)
-                        {
-                            temp += "\\" + tempA[x];
-                        }
-                        temp += "\\matxml\\"+fileName+".matbin";
-                        tempMat = matPathFirst + temp;
-                    }
-                    else if (Path.GetExtension(temp) == ".matxml")
-                    {
-                        tempMat = matPathFirst + Regex.Replace(temp, @"(\.matxml)\b", ".matbin");
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                        
-                    
-                    materialsByModel[i].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == tempMat).FirstOrDefault().Bytes));
-
+                    materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
                 }
                 transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
                 transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
-            //WriteFLVERtoASCIIInOne(erdir, outFileName+"_base", transforms, true, true);
+            WriteFLVERtoASCIIInOne(erdir, outFileName+"_base", transforms, materials, true, true);
             model.Clear();
             transforms.Clear();
+            materials.Clear();
 
             switch (game)
             {
@@ -1019,6 +975,15 @@ namespace FLVERtoASCII
                                 fails.Add(bnd.Files[j].Name);
                                 continue;
                             }
+
+                        }
+                    }
+                    for (int i = 0; i < Model.Count; i++)
+                    {
+                        materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
+                        for (int j = 0; j < Model[i].Materials.Count; j++)
+                        {
+                            materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
 
                         }
                     }
@@ -1110,6 +1075,32 @@ namespace FLVERtoASCII
             ;
         }
 
+        private static string getTexturePaths(string MTD, string firstPathPart)
+        {
+            string temp = MTD.Substring(23);
+            string tempMat = "";
+            if (Path.GetExtension(temp) == ".mtd")
+            {
+                string fileName = Path.GetFileNameWithoutExtension(temp);
+                string[] tempA = temp.Split(new string[] { "\\" }, StringSplitOptions.None);
+                temp = "";
+                for (int x = 1; x < tempA.Length - 1; x++)
+                {
+                    temp += "\\" + tempA[x];
+                }
+                temp += "\\matxml\\" + fileName + ".matbin";
+                tempMat = firstPathPart + temp;
+            }
+            else if (Path.GetExtension(temp) == ".matxml")
+            {
+                tempMat = firstPathPart + Regex.Replace(temp, @"(\.matxml)\b", ".matbin");
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+            return tempMat;
+        } 
         public static Vector3 PosVecToXna(System.Numerics.Vector3 pos)
         {
             return new Vector3(pos.X, pos.Z, pos.Y);
