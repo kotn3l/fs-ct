@@ -14,6 +14,9 @@ namespace FLVERtoASCII
         private List<string> ascii;
         private bool IsPlayer;
         List<FLVER2> model;
+
+        private static string seperator = "-----------------------------";
+
         public List<FlverBoneInfo> FlverSkeleton = new List<FlverBoneInfo>();
         public List<int> TopLevelFlverBoneIndices = new List<int>();
         public int RightWeaponBoneIndex = -1;
@@ -212,7 +215,9 @@ namespace FLVERtoASCII
 
             Dictionary<int, Matrix4x4> transformOne = new Dictionary<int, Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transformMultpile = new Dictionary<int, List<Matrix4x4>>();
-
+            List<string> texturestxt = new List<string>();
+            texturestxt.Add(fileName);
+            texturestxt.Add(seperator);
             int plusBone = 0;
             if (addRoot)
             {
@@ -319,36 +324,60 @@ namespace FLVERtoASCII
                 {
                     continue;
                 }
+                for (int i = 0; i < material[Model[y].GetHashCode()].Count; i++)
+                {
+                    for (int j = 0; j < Model[y].Meshes.Count; j++)
+                    {
+                        if (texturestxt.Contains(Model[y].Materials[Model[y].Meshes[j].MaterialIndex].Name))
+                        {
+                            continue;
+                        }
+                        if (Model[y].Materials[Model[y].Meshes[j].MaterialIndex].MTD == "")
+                        {
+                            continue;
+                        }
+                        texturestxt.Add(Model[y].Materials[Model[y].Meshes[j].MaterialIndex].Name);
+                        for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[j].MaterialIndex].Samplers.Count; l++)
+                        {
+                            texturestxt.Add(Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[j].MaterialIndex].Samplers[l].Path));
+                        }
+
+                    }
+                    texturestxt.Add(seperator);
+                }
                 for (int z = 0; z < transform[Model[y].GetHashCode()].Count; z++)
                 {
-                    int Tex = 0;
-                    for (int i = 0; i < material[Model[y].GetHashCode()].Count; i++)
-                    {
-                        for (int l = 0; l < material[Model[y].GetHashCode()][i].Samplers.Count; l++)
-                        {
-                            Tex++;
-                        }
-                    }
+                    
+                    
                     for (int i = 0; i < Model[y].Meshes.Count; i++)
                     {
+                        int Tex = 0;
+                        for (int k = 0; k < material[Model[y].GetHashCode()].Count; k++)
+                        {
+                            for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
+                            {
+                                Tex++;
+                            }
+                        }
                         ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name); //mesh name
                         ascii.Add(Model[y].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
                         ascii.Add(Tex.ToString()); //tex count
                         for (int k = 0; k < material[Model[y].GetHashCode()].Count; k++)
                         {
-                            for (int l = 0; l < material[Model[y].GetHashCode()][k].Samplers.Count; l++)
+                            for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
                             {
-                                ascii.Add(material[Model[y].GetHashCode()][k].Samplers[l].Type);
-                                if (Path.GetFileName(material[Model[y].GetHashCode()][k].Samplers[l].Path) == "" || material[Model[y].GetHashCode()][k].Samplers[l].Path == "")
+                                ascii.Add(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Type);
+                                if (Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path) == "" || material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path == "")
                                 {
                                     ascii.Add("UNK");
                                 }
                                 else
                                 {
-                                    ascii.Add(Path.GetFileName(material[Model[y].GetHashCode()][k].Samplers[l].Path));
+                                    ascii.Add(Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
                                 }
                             }
                         }
+
                         ascii.Add(Model[y].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                         for (int j = 0; j < Model[y].Meshes[i].Vertices.Count; j++) //vertices
                         {
@@ -416,15 +445,17 @@ namespace FLVERtoASCII
                         }
 
                     }
-
+                    texturestxt.Add(seperator);
                 }
             }
 
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
+            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxt);
+
+            /*using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
                 foreach (string line in ascii)
                     outputFile.WriteLine(line);
-            }
+            }*/
 
             ascii.Clear();
 
@@ -936,12 +967,35 @@ namespace FLVERtoASCII
                 materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
                 for (int j = 0; j < Model[i].Materials.Count; j++)
                 {
+                    if (Model[i].Materials[j].MTD == "")
+                    {
+                        continue;
+                    }
+                    if (matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)) == null)
+                    {
+                        fails.Add("MATBIN doesn't exist inside materials: " + Model[i].Materials[j].MTD);
+                        continue;
+                    }
                     materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
+                    for (int k = 0; k < materials[Model[i].GetHashCode()][j].Samplers.Count; k++)
+                    {
+                        if (materials[Model[i].GetHashCode()][j].Samplers[k].Path == "")
+                        {
+                            continue;
+                        }
+                        string realPath = getRealTexturePath(materials[Model[i].GetHashCode()][j].Samplers[k].Path, erdir);
+                        if (realPath == "")
+                        {
+                            continue;
+                        }
+                        texture(TPF.Read(realPath), erdir);
+                    }
                 }
                 transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
                 transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
             WriteFLVERtoASCIIInOne(erdir, outFileName+"_base", transforms, materials, true, true);
+            //File.WriteAllLines(erdir + "\\" + outFileName + "_base_tex.txt", texturestxt);
             model.Clear();
             transforms.Clear();
             materials.Clear();
@@ -972,7 +1026,7 @@ namespace FLVERtoASCII
                             }
                             catch (Exception)
                             {
-                                fails.Add(bnd.Files[j].Name);
+                                fails.Add("Cannot load FLVER2 " + bnd.Files[j].Name);
                                 continue;
                             }
 
@@ -983,8 +1037,43 @@ namespace FLVERtoASCII
                         materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
                         for (int j = 0; j < Model[i].Materials.Count; j++)
                         {
-                            materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
+                            if (Model[i].Materials[j].MTD == "")
+                            {
+                                continue;
+                            }
+                            if (matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)) == null || !materials.ContainsKey(Model[i].GetHashCode()))
+                            {
+                                fails.Add("MATBIN doesn't exist inside materials: " + Model[i].Materials[j].MTD);
+                                continue;
+                            }
+                            try
+                            {
+                                materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
+                            }
+                            catch (NullReferenceException e)
+                            {
+                                fails.Add("UNKNOWN ERROR: " + Model[i].Materials[j].MTD + " " + e.Message);
+                                continue;
+                            }
+                            catch (Exception e)
+                            {
+                                fails.Add("UNKNOWN ERROR: " + Model[i].Materials[j].MTD + " " + e.Message);
+                                continue;
+                            }
 
+                            for (int k = 0; k < materials[Model[i].GetHashCode()][j].Samplers.Count; k++)
+                            {
+                                if (materials[Model[i].GetHashCode()][j].Samplers[k].Path == "")
+                                {
+                                    continue;
+                                }
+                                string realPath = getRealTexturePath(materials[Model[i].GetHashCode()][j].Samplers[k].Path, erdir);
+                                if (realPath == "")
+                                {
+                                    continue;
+                                }
+                                texture(TPF.Read(realPath), erdir);
+                            }
                         }
                     }
                     break;
@@ -1069,10 +1158,15 @@ namespace FLVERtoASCII
                 if (transformSplit[i].Count > 0)
                 {
                     //string see = "chapel" + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count);
-                    WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materialsByModel, true, true);
+                    WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true);
                 }
             }
             ;
+            File.WriteAllLines(erdir + "\\" + outFileName+ string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_fails.txt", fails);
+        }
+        public void character()
+        {
+
         }
 
         private static string getTexturePaths(string MTD, string firstPathPart)
@@ -1101,6 +1195,29 @@ namespace FLVERtoASCII
             }
             return tempMat;
         } 
+        private static string getRealTexturePath(string SamplerPath, string erdir)
+        {
+            if (SamplerPath == "")
+            {
+                return "";
+            }
+            string[] tempA = SamplerPath.Split(new string[] { "\\" }, StringSplitOptions.None);
+            string remove = Path.GetFileNameWithoutExtension(tempA[tempA.Length - 1].ToLower());
+            string[] tempB = remove.Split('_');
+            if (tempB.Length > 2)
+            {
+                remove = tempB[tempB.Length - 3] + "_" + tempB[tempB.Length - 2] + ".tpf";
+            }
+            //string test = Regex.Replace(tempA[tempA.Length - 1], @"(\.tif)\b", ".tpf").ToLower();
+            //Regex.Replace(Regex.Replace(tempA[tempA.Length - 1], @"(\.tif)\b", ".tpf").ToLower(), @"(_1m)\b", "")
+            string temp = "\\" + tempA[tempA.Length - 2].ToLower() + "\\" + remove;
+            string path = erdir + "\\asset\\aet" + temp;
+            if (path == "systex" || Regex.IsMatch(path, @"(systex)") || path.Contains("systex"))
+            {
+                return "";
+            }
+            else return path;
+        }
         public static Vector3 PosVecToXna(System.Numerics.Vector3 pos)
         {
             return new Vector3(pos.X, pos.Z, pos.Y);
