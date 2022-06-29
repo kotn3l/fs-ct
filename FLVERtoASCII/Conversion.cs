@@ -1045,58 +1045,6 @@ namespace FLVERtoASCII
 
                         }
                     }
-
-                    /*for (int i = 0; i < Model.Count; i++) //materials
-                    {
-                        if (!materials.ContainsKey(Model[i].GetHashCode()))
-                        {
-                            materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
-                        }
-                        for (int j = 0; j < Model[i].Materials.Count; j++)
-                        {
-                            if (Model[i].Materials[j].MTD == "")
-                            {
-                                continue;
-                            }
-                            if (matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)) == null || !materials.ContainsKey(Model[i].GetHashCode()))
-                            {
-                                fails.Add("MATBIN doesn't exist inside materials: " + Model[i].Materials[j].MTD);
-                                continue;
-                            }
-                            try
-                            {
-                                materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
-                            }
-                            catch (Exception e)
-                            {
-                                fails.Add("UNKNOWN ERROR: " + Model[i].Materials[j].MTD + " " + e.Message);
-                                continue;
-                            }
-
-                            for (int k = 0; k < materials[Model[i].GetHashCode()][j].Samplers.Count; k++)
-                            {
-                                if (materials[Model[i].GetHashCode()][j].Samplers[k].Path == "")
-                                {
-                                    continue;
-                                }
-                                string realPath = getRealTexturePath(materials[Model[i].GetHashCode()][j].Samplers[k].Path, erdir);
-                                if (realPath == "")
-                                {
-                                    continue;
-                                }
-                                try
-                                {
-                                    //texture(TPF.Read(realPath), erdir);
-                                }
-                                catch (Exception)
-                                {
-                                    fails.Add("Cannot load TPF " + realPath);
-                                    continue;
-                                }
-                                
-                            }
-                        }
-                    }*/
                     convertTextures(ref materials, ref matbnd, ref fails, erdir, matPathFirst);
                     break;
                 default:
