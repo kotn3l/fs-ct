@@ -1205,7 +1205,7 @@ namespace FLVERtoASCII
             fails.Clear();
             fails.Add($"{sw.Elapsed.Minutes}m {sw.Elapsed.Seconds}s {sw.Elapsed.Milliseconds}ms");
             fails.Add($"{sw.Elapsed.Ticks} ticks");
-            File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_PERFORMANCE_MULTI_1600X.txt", fails);
+            File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_PERFORMANCE_MULTI.txt", fails);
 
 
             return;
@@ -1360,7 +1360,7 @@ namespace FLVERtoASCII
             //Regex.Replace(Regex.Replace(tempA[tempA.Length - 1], @"(\.tif)\b", ".tpf").ToLower(), @"(_1m)\b", "")
             string temp = "\\" + tempA[tempA.Length - 2].ToLower() + "\\" + remove;
             string path = erdir + "\\asset\\aet" + temp;
-            if (path == "systex" || Regex.IsMatch(path, @"(systex)") || path.Contains("systex"))
+            if (path == "systex" || Regex.IsMatch(path, @"(systex)") || path.Contains("systex") || !File.Exists(path))
             {
                 return "";
             }
