@@ -1,6 +1,6 @@
 ## Map Conversion to ASCII with texture support
 
-New Multithreaded option, performance thread was run on 1600X (6c/12t):
+New Multithreaded option, performance tests were run on 1600X (6c/12t):
 
 |Test ran on maps                |SingleThreaded       |MultiThreaded| MT faster by %
 |----------------|-------------------------------|-----------------------------|-|
