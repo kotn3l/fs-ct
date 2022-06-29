@@ -2,7 +2,7 @@
 
 New Multithreaded option, performance thread was run on 1600X (6c/12t):
 
-|Test ran on maps                |Singlethreaded       |MultiThreaded| MT faster by %
+|Test ran on maps                |SingleThreaded       |MultiThreaded| MT faster by %
 |----------------|-------------------------------|-----------------------------|-|
 |**m10_01_00_00**|**4**m 28s 163ms            |3m 19s 573ms            | 34.2% |
 |**m31_03_00_00**|**0**m 26s 816ms            |0m 20s 722ms            |29.4% |
