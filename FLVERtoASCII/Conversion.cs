@@ -4,16 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using SoulsFormats;
+using System.Diagnostics;
+
 
 
 namespace FLVERtoASCII
 {
-    class Conversion
+    class Conversion : IDisposable
     {
-        private List<string> ascii;
+        //private List<string> ascii;
         private bool IsPlayer;
         List<FLVER2> model;
+
+        public List<Thread> threads = new List<Thread>();
+        public List<Thread> texThreads = new List<Thread>();
 
         private static string seperator = "-----------------------------";
 
@@ -40,7 +47,7 @@ namespace FLVERtoASCII
             this.IsPlayer = IsPlayer;
             Model = new List<FLVER2>();
             Model.Add(model);
-            ascii = new List<string>();
+            //ascii = new List<string>();
         }
 
         public Conversion(List<FLVER2> models, bool IsPlayer = false)
@@ -48,17 +55,18 @@ namespace FLVERtoASCII
             this.IsPlayer = IsPlayer;
             Model = new List<FLVER2>(models);
             //Model.Add(model);
-            ascii = new List<string>();
+            //ascii = new List<string>();
         }
 
         public Conversion()
         {
             Model = new List<FLVER2>();
-            ascii = new List<string>();
+            //ascii = new List<string>();
         }
 
         public void WriteFLVERtoASCII(string outPath, string fileName, bool bones = false, bool addRoot = false, int index = 0)
         {
+            List<string> ascii = new List<string>();
             int plusBone = 0;
             if (bones)
             {
@@ -212,7 +220,7 @@ namespace FLVERtoASCII
         }
         public void WriteFLVERtoASCIIInOne(string outPath, string fileName, Dictionary<int, List<Matrix4x4>> transform, Dictionary<int, List<MATBIN>> material, bool bones = false, bool addRoot = false)
         {
-
+            List<string> ascii = new List<string>();
             Dictionary<int, Matrix4x4> transformOne = new Dictionary<int, Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transformMultpile = new Dictionary<int, List<Matrix4x4>>();
             List<string> texturestxt = new List<string>();
@@ -451,21 +459,23 @@ namespace FLVERtoASCII
 
             File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxt);
 
-            /*using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
                 foreach (string line in ascii)
                     outputFile.WriteLine(line);
-            }*/
 
+
+            }
+            
             ascii.Clear();
 
         }
 
         public void chrbndFolder(string inPath, string outPath)
         {
-            string[] tomb = Directory.GetFiles(inPath, "*.chrbnd");
+            string[] tomb = Directory.GetFiles(inPath, "*.chrbnd.dcx");
             string[] tombP = Directory.GetFiles(inPath, "*.partsbnd");
-            string[] texs = Directory.GetFiles(inPath, "*.texbnd");
+            string[] texs = Directory.GetFiles(inPath, "*.texbnd.dcx");
             List<string> filenames = new List<string>();
             List<string> filenamesP = new List<string>();
             List<string> filenamesTex = new List<string>();
@@ -483,12 +493,12 @@ namespace FLVERtoASCII
                         Model.Add(FLVER2.Read(partbnd.Files[j].Bytes));
                         filenamesP.Add(Path.GetFileNameWithoutExtension(partbnd.Files[j].Name));
                     }
-                    /*else if (Path.GetExtension(partbnds[i].Files[j].Name).ToLower() == ".tpf")
+                    else if (Path.GetExtension(partbnd.Files[j].Name).ToLower() == ".tpf")
                     {
                         //File.WriteAllBytes(outPath+"//"+Path.GetFileName(chrbnds[i].Files[j].Name).ToLower(), chrbnds[i].Files[j].Bytes);
-                        Directory.CreateDirectory(outPath + "//" + Path.GetFileName(partbnds[i].Files[j].Name));
-                        texture(TPF.Read(partbnds[i].Files[j].Bytes), outPath + "//" + Path.GetFileName(partbnds[i].Files[j].Name));
-                    }*/
+                        Directory.CreateDirectory(outPath + "//" + Path.GetFileName(partbnd.Files[j].Name));
+                        texture(TPF.Read(partbnd.Files[j].Bytes), outPath + "//" + Path.GetFileName(partbnd.Files[j].Name));
+                    }
 
                     //chrbnds[i].Files[j].Name;
                 }
@@ -517,7 +527,7 @@ namespace FLVERtoASCII
 
 
             }
-            /*for (int i = 0; i < texs.Length; i++)
+            for (int i = 0; i < texs.Length; i++)
             {
                 texbnds.Add(BND4.Read(texs[i]));
                 for (int j = 0; j < texbnds[i].Files.Count; j++)
@@ -529,7 +539,7 @@ namespace FLVERtoASCII
                         texture(TPF.Read(texbnds[i].Files[j].Bytes), outPath + "//" + Path.GetFileName(texbnds[i].Files[j].Name));
                     }
                 }
-            }*/
+            }
             for (int i = 0; i < Model.Count; i++)
             {
                 WriteFLVERtoASCII(outPath, filenames[i], true, true, i);
@@ -540,7 +550,24 @@ namespace FLVERtoASCII
         {
             for (int i = 0; i < text.Textures.Count; i++)
             {
-                File.WriteAllBytes(Path.Combine(outPath, text.Textures[i].Name + ".dds"), text.Textures[i].Bytes);
+                try
+                {
+                    if (!File.Exists(Path.Combine(outPath, text.Textures[i].Name + ".dds")))
+                    {
+                        File.WriteAllBytes(Path.Combine(outPath, text.Textures[i].Name + ".dds"), text.Textures[i].Bytes);
+                    }
+                }
+                catch (IOException e)
+                {
+                    //fails.Add(e.Message);
+                    continue;
+                }
+                catch (Exception a)
+                {
+                    continue;
+                    //fails.Add("UNKOWN ERROR: " + a.Message);
+                }
+                
             }
 
         }
@@ -703,6 +730,7 @@ namespace FLVERtoASCII
         }
         public void MergePlayer(string outPath, string fileName, bool bones = false, bool addRoot = false)
         {
+            List<string> ascii = new List<string>();
             int plusBone = 0;
             if (addRoot)
             {
@@ -884,13 +912,16 @@ namespace FLVERtoASCII
         public Dictionary<string, FLVER2> geometry;
         public void map(Games game, string erdir, MSBE msb, string outFileName)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+
             geometry = new Dictionary<string, FLVER2>();
             HashSet<string> pieceNames = new HashSet<string>();
             List<MSBE.Part> parts = new List<MSBE.Part>(msb.Parts.MapPieces);
             //List<Matrix4x4> transforms = new List<Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transforms = new Dictionary<int, List<Matrix4x4>>();
             Dictionary<int, List<MATBIN>> materials = new Dictionary<int, List<MATBIN>>();
-
             List<string> fails = new List<string>();
 
             BND4 matbnd;
@@ -909,6 +940,7 @@ namespace FLVERtoASCII
 
             string gameCode = "";
             string extension = "";
+            string bucket = "";
             switch (game)
             {
                 case Games.ELDEN_RING:
@@ -946,7 +978,7 @@ namespace FLVERtoASCII
                     continue;
                 }
                 string firstPart = msb.Models.MapPieces[i].SibPath.Substring($@"N:\{gameCode}\data\Model\map\".Length, 12);
-                string bucket = firstPart.Substring(0,3);
+                bucket = firstPart.Substring(0,3);
                 string secondPart = msb.Models.MapPieces[i].Name.Substring(1);
                 string fullName = firstPart + "_" + secondPart;
                 string fileName = $"/map/{bucket}/{firstPart}/{fullName}.mapbnd";
@@ -956,50 +988,31 @@ namespace FLVERtoASCII
                 {
                     if (bnd.Files[j].Name.Contains($"{secondPart}.{extension}"))
                     {
+                        geoms.Add(bnd.Files[j].Name);
                         model.Add(FLVER2.Read(bnd.Files[j].Bytes));
                         geometry.Add(msb.Models.MapPieces[i].Name, model.Last());
-                        //FLVER2 flver = FLVER2.Read(bnd.Files[j].Bytes);
                     }
                 }
             }
+            convertTextures(ref materials, ref matbnd, ref fails, erdir, matPathFirst);
             for (int i = 0; i < Model.Count; i++)
             {
-                materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
-                for (int j = 0; j < Model[i].Materials.Count; j++)
-                {
-                    if (Model[i].Materials[j].MTD == "")
-                    {
-                        continue;
-                    }
-                    if (matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)) == null)
-                    {
-                        fails.Add("MATBIN doesn't exist inside materials: " + Model[i].Materials[j].MTD);
-                        continue;
-                    }
-                    materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
-                    for (int k = 0; k < materials[Model[i].GetHashCode()][j].Samplers.Count; k++)
-                    {
-                        if (materials[Model[i].GetHashCode()][j].Samplers[k].Path == "")
-                        {
-                            continue;
-                        }
-                        string realPath = getRealTexturePath(materials[Model[i].GetHashCode()][j].Samplers[k].Path, erdir);
-                        if (realPath == "")
-                        {
-                            continue;
-                        }
-                        texture(TPF.Read(realPath), erdir);
-                    }
-                }
                 transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
                 transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
-            WriteFLVERtoASCIIInOne(erdir, outFileName+"_base", transforms, materials, true, true);
-            //File.WriteAllLines(erdir + "\\" + outFileName + "_base_tex.txt", texturestxt);
-            model.Clear();
-            transforms.Clear();
-            materials.Clear();
+            if (bucket != "m60")
+            {
+                WriteFLVERtoASCIIInOne(erdir, outFileName + "_base", transforms, materials, true, true);
+                while (texThreads.Any(x => x.IsAlive))
+                {
 
+                }
+                model.Clear();
+                transforms.Clear();
+                geoms.Clear();
+                materials.Clear();
+
+            }
             switch (game)
             {
                 case Games.ELDEN_RING:
@@ -1032,9 +1045,13 @@ namespace FLVERtoASCII
 
                         }
                     }
-                    for (int i = 0; i < Model.Count; i++)
+
+                    /*for (int i = 0; i < Model.Count; i++) //materials
                     {
-                        materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
+                        if (!materials.ContainsKey(Model[i].GetHashCode()))
+                        {
+                            materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
+                        }
                         for (int j = 0; j < Model[i].Materials.Count; j++)
                         {
                             if (Model[i].Materials[j].MTD == "")
@@ -1049,11 +1066,6 @@ namespace FLVERtoASCII
                             try
                             {
                                 materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
-                            }
-                            catch (NullReferenceException e)
-                            {
-                                fails.Add("UNKNOWN ERROR: " + Model[i].Materials[j].MTD + " " + e.Message);
-                                continue;
                             }
                             catch (Exception e)
                             {
@@ -1072,10 +1084,20 @@ namespace FLVERtoASCII
                                 {
                                     continue;
                                 }
-                                texture(TPF.Read(realPath), erdir);
+                                try
+                                {
+                                    //texture(TPF.Read(realPath), erdir);
+                                }
+                                catch (Exception)
+                                {
+                                    fails.Add("Cannot load TPF " + realPath);
+                                    continue;
+                                }
+                                
                             }
                         }
-                    }
+                    }*/
+                    convertTextures(ref materials, ref matbnd, ref fails, erdir, matPathFirst);
                     break;
                 default:
                     string objFolder = Path.Combine(erdir, "obj");
@@ -1109,7 +1131,6 @@ namespace FLVERtoASCII
                     break;
             }
 
-            
             for (int i = 0; i < parts.Count; i++)
             {
                 FLVER2 geom;
@@ -1142,7 +1163,7 @@ namespace FLVERtoASCII
             {
                 transformSplit.Add(new Dictionary<int, List<Matrix4x4>>());
             }
-            
+
             for (int i = 0; i < Model.Count; i++)
             {
                 //int count = (transforms[Model[i].GetHashCode()].Count / 5) + 1;
@@ -1152,23 +1173,150 @@ namespace FLVERtoASCII
                 }
                 else transformSplit[(transforms[Model[i].GetHashCode()].Count/1)+1].Add(Model[i].GetHashCode(), transforms[Model[i].GetHashCode()]);
             }
-            
-            for (int i = 0; i < transformSplit.Count; i++)
+            foreach (var item in transformSplit)
             {
-                if (transformSplit[i].Count > 0)
+                if (item.Count > 0 && item.Values.Count > 0)
                 {
+                    threads.Add(new Thread(() => WriteFLVERtoASCIIInOne(erdir, outFileName + item.Min(e => e.Value.Count) + "-" + item.Max(e => e.Value.Count), item, materials, true, true)));
+                    threads.Last().Start();
                     //string see = "chapel" + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count);
-                    WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true);
+                    //WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true);
                 }
             }
-            ;
-            File.WriteAllLines(erdir + "\\" + outFileName+ string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_fails.txt", fails);
+
+            /*for (int i = 0; i < transformSplit.Count; i++)
+            {
+                if (transformSplit[i].Count > 0 && transformSplit[i].Values.Count > 0)
+                {
+                    Thread myThread = new Thread(() => WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true));
+                    myThread.Start();
+                    //string see = "chapel" + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count);
+                    //WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true);
+                }
+            }*/
+            //Task.Factory.StartNew(() => Parallel.ForEach(transformSplit, x => WriteFLVERtoASCIIInOne(erdir, outFileName + x.Min(e => e.Value.Count) + "-" + x.Max(e => e.Value.Count), x, materials, true, true)));
+
+            while (threads.Any(x => x.IsAlive) || texThreads.Any(x => x.IsAlive))
+            {
+
+            }
+            File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_fails.txt", fails);
+            sw.Stop();
+            fails.Clear();
+            fails.Add($"{sw.Elapsed.Minutes}m {sw.Elapsed.Seconds}s {sw.Elapsed.Milliseconds}ms");
+            fails.Add($"{sw.Elapsed.Ticks} ticks");
+            File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_PERFORMANCE_MULTI_1600X.txt", fails);
+
+
+            return;
         }
         public void character()
         {
 
         }
 
+        public void convertTextures(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, ref List<string> fails, string erdir, string matPathFirst)
+        {
+            List<string> textureNames = new List<string>();
+            for (int i = 0; i < Model.Count; i++)
+            {
+                if (!materials.ContainsKey(Model[i].GetHashCode()))
+                {
+                    materials.Add(Model[i].GetHashCode(), new List<MATBIN>());
+                }
+                else continue;
+                for (int j = 0; j < Model[i].Materials.Count; j++)
+                {
+                    if (Model[i].Materials[j].MTD == "")
+                    {
+                        continue;
+                    }
+                    if (matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)) == null)
+                    {
+                        fails.Add("MATBIN doesn't exist inside materials: " + Model[i].Materials[j].MTD);
+                        continue;
+                    }
+                    try
+                    {
+                        materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
+                    }
+                    catch (Exception e)
+                    {
+                        fails.Add("UNKNOWN ERROR: " + Model[i].Materials[j].MTD + " " + e.Message);
+                        continue;
+                    }
+                    //materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
+                    for (int k = 0; k < materials[Model[i].GetHashCode()][j].Samplers.Count; k++)
+                    {
+                        if (materials[Model[i].GetHashCode()][j].Samplers[k].Path == "")
+                        {
+                            continue;
+                        }
+                        string realPath = getRealTexturePath(materials[Model[i].GetHashCode()][j].Samplers[k].Path, erdir);
+                        if (realPath == "")
+                        {
+                            continue;
+                        }
+                        if (textureNames.Contains(materials[Model[i].GetHashCode()][j].Samplers[k].Path))
+                        {
+                            continue;
+                        }
+                        else textureNames.Add(materials[Model[i].GetHashCode()][j].Samplers[k].Path);
+                        try
+                        {
+                            //texture(TPF.Read(realPath), erdir);
+                            texThreads.Add(new Thread(() => texture(TPF.Read(realPath), erdir)));
+                            texThreads.Last().Start();
+                        }
+                        catch (Exception)
+                        {
+                            fails.Add("Cannot load TPF " + realPath);
+                            continue;
+                        }
+
+                    }
+                }
+                //transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
+                //transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
+            }
+        }
+
+        public void msg(string erdir, string outFileName)
+        {
+            BND4 item;
+            item = BND4.Read(erdir + "//msg//engus//item.msgbnd.dcx");
+
+            BND4 menu;
+            menu = BND4.Read(erdir + "//msg//engus//menu.msgbnd.dcx");
+
+            for (int i = 0; i < item.Files.Count; i++)
+            {
+                if (!Directory.Exists(erdir + $"//msg//engus//item"))
+                {
+                    Directory.CreateDirectory(erdir + $"//msg//engus//item");
+                }
+                FMG fmg = FMG.Read(item.Files[i].Bytes);
+                List<string> temp = new List<string>(fmg.Entries.Select(x => x.Text));
+                /*for (int j = 0; j < fmg.Entries.Count; j++)
+                {
+                    temp.Add(fmg.Entries[i].Text);
+                }*/
+                File.WriteAllLines(erdir + $"//msg//engus//item//{Path.GetFileNameWithoutExtension(item.Files[i].Name)}O.txt", temp);
+
+            }
+            for (int i = 0; i < menu.Files.Count; i++)
+            {
+                if (!Directory.Exists(erdir + $"//msg//engus//menu"))
+                {
+                    Directory.CreateDirectory(erdir + $"//msg//engus//menu");
+                }
+                FMG fmg = FMG.Read(menu.Files[i].Bytes);
+                List<string> temp = new List<string>(fmg.Entries.Select(x => x.Text));
+                File.WriteAllLines(erdir + $"//msg//engus//menu//{Path.GetFileNameWithoutExtension(menu.Files[i].Name)}O.txt", temp);
+            }
+
+            ;
+        }
         private static string getTexturePaths(string MTD, string firstPathPart)
         {
             string temp = MTD.Substring(23);
@@ -1279,6 +1427,14 @@ namespace FLVERtoASCII
         }
         private void writeSumsOne()
         {
+
+        }
+
+        public void Dispose()
+        {
+            model.Clear();
+            model = null;
+
 
         }
     }

@@ -46,6 +46,7 @@
             this.map = new System.Windows.Forms.Button();
             this.mapBox = new System.Windows.Forms.ListBox();
             this.cb_GameList = new System.Windows.Forms.ComboBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // flverPath
@@ -205,7 +206,7 @@
             // 
             // map
             // 
-            this.map.Location = new System.Drawing.Point(418, 284);
+            this.map.Location = new System.Drawing.Point(471, 284);
             this.map.Name = "map";
             this.map.Size = new System.Drawing.Size(75, 23);
             this.map.TabIndex = 16;
@@ -218,7 +219,7 @@
             this.mapBox.FormattingEnabled = true;
             this.mapBox.Location = new System.Drawing.Point(176, 284);
             this.mapBox.Name = "mapBox";
-            this.mapBox.Size = new System.Drawing.Size(236, 420);
+            this.mapBox.Size = new System.Drawing.Size(289, 420);
             this.mapBox.TabIndex = 17;
             // 
             // cb_GameList
@@ -229,11 +230,19 @@
             this.cb_GameList.Size = new System.Drawing.Size(174, 21);
             this.cb_GameList.TabIndex = 18;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(12, 239);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(534, 23);
+            this.progressBar1.TabIndex = 19;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(828, 752);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.cb_GameList);
             this.Controls.Add(this.mapBox);
             this.Controls.Add(this.map);
@@ -279,6 +288,7 @@
         private System.Windows.Forms.Button map;
         private System.Windows.Forms.ListBox mapBox;
         private System.Windows.Forms.ComboBox cb_GameList;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

@@ -66,54 +66,54 @@ namespace FLVERtoASCII
             { "m19_00_00_00", "Radagon boss arena" },
             { "m19_00_00_99", "Radagon boss arena, background details" },
             { "m19_70_00_00", "Radagon boss arena" },
-            { "m30_00_00_00", "Some catacombs" },
-            { "m30_01_00_00", "Some catacombs" },
-            { "m30_02_00_00", "Some catacombs" },
-            { "m30_03_00_00", "Some catacombs" },
-            { "m30_04_00_00", "Some catacombs" },
-            { "m30_05_00_00", "Some catacombs" },
-            { "m30_06_00_00", "Some catacombs" },
-            { "m30_07_00_00", "Some catacombs" },
-            { "m30_08_00_00", "Some catacombs" },
-            { "m30_09_00_00", "Gelmir Hero's Grave" },
-            { "m30_10_00_00", "Auriza Hero's Grave" },
-            { "m30_11_00_00", "Some catacombs" },
-            { "m30_12_00_00", "Some catacombs" },
-            { "m30_13_00_00", "Some catacombs" },
-            { "m30_14_00_00", "Some catacombs" },
-            { "m30_15_00_00", "Some catacombs" },
-            { "m30_16_00_00", "War-Dead Catacombs" },
-            { "m30_17_00_00", "Giant-Conquering Hero's Grave" },
-            { "m30_18_00_00", "Some catacombs" },
-            { "m30_19_00_00", "Some catacombs" },
+            { "m30_00_00_00", "Tombsward Catacombs (Weeping Peninsula)" },
+            { "m30_01_00_00", "Impaler's Catacombs (Weeping Peninsula)" },
+            { "m30_02_00_00", "Stormfoot Catacombs (Limgrave)" },
+            { "m30_03_00_00", "Road's End Catacombs (Liurnia)" },
+            { "m30_04_00_00", "Murkwater Catacombs (Limgrave)" },
+            { "m30_05_00_00", "Black Knife Catacombs (Liurnia)" },
+            { "m30_06_00_00", "Cliffbottom Catacombs (Liurnia)" },
+            { "m30_07_00_00", "Wyndham Catacombs (Altus)" },
+            { "m30_08_00_00", "Sainted Hero's Grave (Altus)" },
+            { "m30_09_00_00", "Gelmir Hero's Grave (Gelmir)" },
+            { "m30_10_00_00", "Auriza Hero's Grave (Altus)" },
+            { "m30_11_00_00", "Deathtouched Catacombs (Limgrave)" },
+            { "m30_12_00_00", "Unsightly Catacombs (Altus)" },
+            { "m30_13_00_00", "Auriza Side Tomb (Altus)" },
+            { "m30_14_00_00", "Minor Erdtree Catacombs (Caelid)" },
+            { "m30_15_00_00", "Caelid Catacombs (Caelid)" },
+            { "m30_16_00_00", "War-Dead Catacombs (Caelid)" },
+            { "m30_17_00_00", "Giant-Conquering Hero's Grave (Mountaintops)" },
+            { "m30_18_00_00", "Giants' Mountaintop Catacombs (Mountaintops)" },
+            { "m30_19_00_00", "Consecrated Snowfield Catacombs (Snowfield)" },
             { "m30_20_00_00", "Hidden Path to the Haligtree" },
-            { "m31_00_00_00", "Murkwater Cave" },
-            { "m31_01_00_00", "Earthbore Cave" },
-            { "m31_02_00_00", "Some cave" },
-            { "m31_03_00_00", "Groveside Cave" },
-            { "m31_04_00_00", "Some cave" },
-            { "m31_05_00_00", "Some cave" },
-            { "m31_06_00_00", "Academy Crystal Cave" },
-            { "m31_07_00_00", "Some cave" },
-            { "m31_09_00_00", "Some cave" },
-            { "m31_10_00_00", "Some cave" },
-            { "m31_11_00_00", "Sellia Hideaway" },
-            { "m31_12_00_00", "Cave of the Forlorn" },
-            { "m31_15_00_00", "Costal Cave" },
-            { "m31_17_00_00", "Highroad Cave" },
-            { "m31_18_00_00", "Perfumer's Grotto" },
-            { "m31_19_00_00", "Sage's Cave" },
-            { "m31_20_00_00", "Abandoned Cave" },
-            { "m31_21_00_00", "Gaol Cave" },
-            { "m31_22_00_00", "Some cave" },
-            { "m32_00_00_00", "Some mine" },
-            { "m32_01_00_00", "Some mine" },
-            { "m32_02_00_00", "Some mine" },
-            { "m32_04_00_00", "Some mine" },
-            { "m32_05_00_00", "Some mine" },
-            { "m32_07_00_00", "Some mine" },
-            { "m32_08_00_00", "Sellia Crystal Tunnel" },
-            { "m32_11_00_00", "Yelough Anix Tunnel" },
+            { "m31_00_00_00", "Murkwater Cave (Limgrave)" },
+            { "m31_01_00_00", "Earthbore Cave (Limgrave)" },
+            { "m31_02_00_00", "Tombsward Cave (Weeping Peninsula)" },
+            { "m31_03_00_00", "Groveside Cave (Limgrave)" },
+            { "m31_04_00_00", "Stillwater Cave (Liurnia)" },
+            { "m31_05_00_00", "Lakeside Crystal Cave (Liurnia)" },
+            { "m31_06_00_00", "Academy Crystal Cave (Liurnia)" },
+            { "m31_07_00_00", "Seethewater Cave (Altus)" },
+            { "m31_09_00_00", "Volcano Cave (Gelmir)" },
+            { "m31_10_00_00", "Dragonbarrow Cave (Caelid)" },
+            { "m31_11_00_00", "Sellia Hideaway (Caelid)" },
+            { "m31_12_00_00", "Cave of the Forlorn (Snowfield)" },
+            { "m31_15_00_00", "Costal Cave (Limgrave)" },
+            { "m31_17_00_00", "Highroad Cave (Limgrave)" },
+            { "m31_18_00_00", "Perfumer's Grotto (Altus)" },
+            { "m31_19_00_00", "Sage's Cave (Altus)" },
+            { "m31_20_00_00", "Abandoned Cave (Caelid)" },
+            { "m31_21_00_00", "Gaol Cave (Caelid)" },
+            { "m31_22_00_00", "Spiritcaller Cave (Mountaintops)" },
+            { "m32_00_00_00", "Morne Tunnel (Limgrave)" },
+            { "m32_01_00_00", "Limgrave Tunnels (Limgrave)" },
+            { "m32_02_00_00", "Raya Lucaria Crystal Tunnel (Liurnia)" },
+            { "m32_04_00_00", "Old Altus Tunnel (Altus)" },
+            { "m32_05_00_00", "Altus Tunnel (Altus)" },
+            { "m32_07_00_00", "Gael Tunnel (Caelid)" },
+            { "m32_08_00_00", "Sellia Crystal Tunnel (Caelid)" },
+            { "m32_11_00_00", "Yelough Anix Tunnel (Snowfield)" },
             { "m34_10_00_00", "Divine Tower of Limgrave, full detail" },
             { "m34_11_00_00", "Divine Tower of Liurnia, full detail" },
             { "m34_12_00_00", "Divine Tower of West Altus and Sealed Tunnel, full detail" },
@@ -122,6 +122,8 @@ namespace FLVERtoASCII
             { "m34_15_00_00", "Isloated Divine Tower, full detail" },
             { "m35_00_00_00", "Subterranean Shunning-Grounds" },
             { "m39_20_00_00", "Ruin-Strewn Precipice" },
+            { "m60_10_09_02", "West Limgrave" },
+
         };
         public static readonly Dictionary<string, string> BBmaps = new Dictionary<string, string>
         {
@@ -318,12 +320,21 @@ namespace FLVERtoASCII
             c.armorset(ER_working_dir, armorsets[parts_list.SelectedIndex]);
         }
 
-        private void map_Click(object sender, EventArgs e)
+        public void SetProgress(int progress)
+        {
+            progressBar1.Value = progress;
+        }
+
+        private async void map_Click(object sender, EventArgs e)
         {
             //string s = $"//map//mapstudio//{maps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb";
             Conversion c = new Conversion();
+            //c.msg(ER_working_dir, "");
             MSBE test = MSBE.Read(ER_working_dir+ $"//map//mapstudio//{ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb");
-            c.map((Games)cb_GameList.SelectedIndex,ER_working_dir, test, ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key + "_" +mapBox.SelectedItem.ToString().Split(null,',')[0].ToLower());
+            Games g = (Games)cb_GameList.SelectedIndex;
+            string selected = (string)mapBox.SelectedItem;
+            await Task.Run(() => c.map(g,ER_working_dir, test, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
+            
         }
     }
 }
