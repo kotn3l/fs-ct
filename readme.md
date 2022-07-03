@@ -1,4 +1,12 @@
-## Map Conversion to ASCII with texture support
+# FS-CT
+This is a very amateurly/poorly written converter tool for most generic FromSoftware formats. I will reformat and refactor someday so it strictly follows all coding conventions. For now, it decompresses BNDs and converts FLVERs (geometry), TPFs (textures), MSGs (texts), MSBs (map placements).
+
+## Model conversion
+Whether it be chrbnd, or partbnd, or anything that contains an FLVER, it will convert it. Will also convert textures from the BND container. **Can also BATCH convert an entire folder of BNDs.**
+
+## FULL map conversion
+
+Select a map from the static list, and then convert that map to ASCII. Also supports textures, that will be in output in DDS. The geometry (except the base geometry) is grouped together on how many instances an object has on the map, and then converted. This is very bad practice, as it will create huge files, but alas, there's no other way to convert.
 
 New Multithreaded option, performance tests were run on 1600X (6c/12t):
 
@@ -10,3 +18,5 @@ New Multithreaded option, performance tests were run on 1600X (6c/12t):
 |**m60_10_09_02**          |7m 38s 328ms|4m 27s 710ms| 71.2% |
 |**AVERAGE**          ||| 57.2% |
 
+## PLAYER CHARACTER MERGING AND CONVERSION
+WIP
