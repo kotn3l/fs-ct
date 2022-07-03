@@ -572,161 +572,90 @@ namespace FLVERtoASCII
 
         }
 
-        public void armorset(string erdir, string armor, string lefthand = "", string righthand = "")
+        public void armorset(string erdir, string armor, string lefthand, string righthand, string beards, string eyebrows, string hairs, string male = "m")
         {
-            FLVER2 body = FLVER2.Read(BND4.Read(erdir + "\\parts\\bd_m_" + armor + ".partsbnd").Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes);
-            FLVER2 head = FLVER2.Read(BND4.Read(erdir + "\\parts\\hd_m_" + armor + ".partsbnd").Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes);
-            FLVER2 arms = FLVER2.Read(BND4.Read(erdir + "\\parts\\am_m_" + armor + ".partsbnd").Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes);
-            FLVER2 legs = FLVER2.Read(BND4.Read(erdir + "\\parts\\lg_m_" + armor + ".partsbnd").Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes);
+            //FG101-152: faces
+            //FG15XX: eyes
+            //FG20XX: eyebrows
+            //FG30XX: beards
+            //FG50XX: eyepatch etc
+            //FG70XX: eyelashes
 
-            List<FLVER.Bone> overallBones = new List<FLVER.Bone>(body.Bones);
-            for (int i = 0; i < head.Bones.Count; i++)
+            //eyelash 7001
+            //eye 1500
+            //beard 3001
+            //eyebrow 2008 2007 2003
+
+            List<BND4> mergeBND = new List<BND4>();
+
+            List<FLVER2> merge = new List<FLVER2>(); //.Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes)
+
+            //FLVER2 merged = new FLVER2();
+            
+
+            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0102.partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_1500.partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_0152.partsbnd"));
+
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + beards + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + eyebrows + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\hr_a_" + hairs + ".partsbnd"));
+
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\bd_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\hd_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\am_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\lg_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
+
+            for (int i = 0; i < mergeBND.Count; i++)
             {
-                for (int j = 0; j < overallBones.Count; j++)
+                merge.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
+            }
+
+            List<FLVER.Bone> full = new List<FLVER.Bone>(merge[0].Bones);
+            for (int i = 1; i < merge.Count; i++)
+            {
+                for (int j = 0; j < merge[i].Bones.Count; j++)
                 {
-                    if (head.Bones[i].Name != overallBones[j].Name)
+                    if (merge[i].Bones[j].ParentIndex == -1)
                     {
-                        overallBones.Add(head.Bones[i]);
+                        if (full.Where(x => x.Name == merge[i].Bones[j].Name).ToList().Count <= 0)
+                        {
+                            full.Add(merge[i].Bones[j]);
+                        }
+                        continue;
+                    }
+                    //FLVER.Bone temp = merge[i].Bones[j];
+                    for (int k = 0; k < full.Count; k++) //ha nem -1 a PID akk végigmegyünk a MASTER rigen
+                    {
+                        if (merge[i].Bones[j].Name == full[k].Name) //ha név alapján már benne van a j-edik
+                        {
+                            //List<int> indexes = new List<int>();
+                            merge[i].Bones.RemoveAt(j);
+                            //merge[i].Bones[j].ParentIndex = full[k].ParentIndex; //a PIDjét áttesszünk a MASTER rigeben talált PIDre
+
+                            for (int l = j; l < merge[i].Bones.Count; l++) //megnézzük ami ezt referencálta
+                            {
+                                if (merge[i].Bones[l].ParentIndex == j) //ha utána még van olyan bone aminek a j a PIDje
+                                {
+                                    //indexes.Add(j);
+                                    merge[i].Bones[l].ParentIndex = (short)k;
+                                    full.Add(merge[i].Bones[l]);
+
+                                }
+                            }
+                            //full.Add();
+                            break;
+                        }
                     }
                 }
-
-            }
-            /*
-            int plusBone = 1;
-            var boneMatrices = new Matrix4x4[Model[index].Bones.Count + plusBone];
-            ascii.Add((Model[index].Bones.Count + plusBone).ToString()); //Bone count
-            List<string> boneNames = new List<string>();
-            List<int> countIndex = new List<int>();
-            if (addRoot)
-            {
-                ascii.Add("root");
-                boneNames.Add("root");
-                ascii.Add("-1");
-                ascii.Add("0 0 0 0 0 0 1");
-            }
-
-            for (int i = 0; i < Model[index].Bones.Count; i++) //Bone names, parents, xyz
-            {
-                countIndex.Add(0);
-                for (int j = 0; j < boneNames.Count; j++)
-                {
-                    if (boneNames[j] == Model[index].Bones[i].Name)
-                    {
-                        countIndex[i]++;
-                    }
-                }
-                boneNames.Add(Model[index].Bones[i].Name);
-                //ascii.Add(countIndex[i] == 0 ? Model[index].Bones[i].Name : Model[index].Bones[i].Name + countIndex[i]);
-                ascii.Add(Model[index].Bones[i].Name);
-                short pIndex = Model[index].Bones[i].ParentIndex;
-                Matrix4x4 translation = Matrix4x4.Identity;
-                if (true)
-                {
-                    translation.M11 *= -1; //FLIP BONES along Z axis
-                }
-                if (pIndex != -1)
-                {
-                    translation = boneMatrices[pIndex];
-                }
-
-                boneMatrices[i] = Model[index].Bones[i].ComputeLocalTransform() * translation;
-                //Quaternion rot = Quaternion.CreateFromRotationMatrix(boneMatrices[i]);
-                ascii.Add((pIndex + plusBone).ToString());
-                ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
-                          boneMatrices[i].M42.ToString("0.##########") + " " +
-                          boneMatrices[i].M43.ToString("0.##########"));
             }
 
 
-            uint VertSum = 0;
-            uint MeshSum = 0;
-            for (int i = 0; i < Model[index].Meshes.Count; i++) //overall meshes
-            {
-                MeshSum++;
-            }
-            ascii.Add(MeshSum.ToString());
-            int Tex = 0;
-            for (int i = 0; i < Model[index].Materials.Count; i++)
-            {
-                Tex++;
-            }
-            for (int i = 0; i < Model[index].Meshes.Count; i++)
-            {
-                for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //overall vertices in one mesh
-                {
-                    VertSum++;
-                }
-                ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); //mesh name
-                ascii.Add(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
-                ascii.Add(Tex.ToString()); //tex count
-                for (int k = 0; k < Tex; k++)
-                {
-                    ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].MTD);
-                    ascii.Add("0");
-                }
-                ascii.Add(VertSum.ToString()); //mesh vertices count
-                VertSum = 0;
-                for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
-                {
-                    //vert pos
-                    ascii.Add(-Model[index].Meshes[i].Vertices[j].Position.X + " " +
-                              Model[index].Meshes[i].Vertices[j].Position.Y + " " +
-                              Model[index].Meshes[i].Vertices[j].Position.Z);
-                    //vert norm
-                    ascii.Add(-Model[index].Meshes[i].Vertices[j].Normal.X + " " +
-                              Model[index].Meshes[i].Vertices[j].Normal.Y + " " +
-                              Model[index].Meshes[i].Vertices[j].Normal.Z);
-                    //vert colors
-                    ascii.Add((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
-                              (Model[index].Meshes[i].Vertices[j].Colors[0].G * 255) + " " +
-                              (Model[index].Meshes[i].Vertices[j].Colors[0].B * 255) + " " +
-                              (Model[index].Meshes[i].Vertices[j].Colors[0].A * 255));
-                    //vert uvs
-                    for (int k = 0; k < Model[index].Meshes[i].Vertices[j].UVs.Count; k++)
-                    {
-                        ascii.Add(Model[index].Meshes[i].Vertices[j].UVs[k].X + " " +
-                              Model[index].Meshes[i].Vertices[j].UVs[k].Y);
-                    }
-                    //vert bone indices
-                    string indices = "";
-                    for (int k = 0; k < 3; k++)
-                    {
-                        indices += Model[index].Meshes[i].Vertices[j].BoneIndices[k] + plusBone + " ";
-                        //IndiceIndex = k;
-                    }
-                    indices += Model[index].Meshes[i].Vertices[j].BoneIndices[3] + plusBone;
-                    ascii.Add(indices);
+            ;
 
-                    string weights = "";
-                    int WeightIndex = 0;
-                    for (int k = 0; k < Model[index].Meshes[i].Vertices[j].BoneWeights.Length - 1; k++)
-                    {
-                        weights += Model[index].Meshes[i].Vertices[j].BoneWeights[k] + " ";
-                        WeightIndex = k;
-                    }
-                    weights += Model[index].Meshes[i].Vertices[j].BoneWeights[WeightIndex + 1];
-                    ascii.Add(weights);
-                }
-                int FaceCount = Model[index].Meshes[i].FaceSets[0].Indices.Count;
-                ascii.Add((FaceCount / 3).ToString());
-                for (int j = 0; j < FaceCount; j++)
-                {
-                    ascii.Add(Model[index].Meshes[i].FaceSets[0].Indices[j] + " " +
-                              Model[index].Meshes[i].FaceSets[0].Indices[j + 2] + " " +
-                              Model[index].Meshes[i].FaceSets[0].Indices[j + 1]); //j+1 is last because of flipping
-                    j++;
-                    j++;
-                }
-
-            }
-
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
-            {
-                foreach (string line in ascii)
-                    outputFile.WriteLine(line);
-            }
-
-            ascii.Clear();*/
         }
         public void MergePlayer(string outPath, string fileName, bool bones = false, bool addRoot = false)
         {
@@ -1132,23 +1061,11 @@ namespace FLVERtoASCII
                 }
             }
 
-            /*for (int i = 0; i < transformSplit.Count; i++)
-            {
-                if (transformSplit[i].Count > 0 && transformSplit[i].Values.Count > 0)
-                {
-                    Thread myThread = new Thread(() => WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true));
-                    myThread.Start();
-                    //string see = "chapel" + transformSplit[i].Min(e => e.Value.Count) + "-" + transformSplit[i].Max(e => e.Value.Count);
-                    //WriteFLVERtoASCIIInOne(erdir, outFileName + transformSplit[i].Min(e => e.Value.Count)+"-"+transformSplit[i].Max(e => e.Value.Count), transformSplit[i], materials, true, true);
-                }
-            }*/
-            //Task.Factory.StartNew(() => Parallel.ForEach(transformSplit, x => WriteFLVERtoASCIIInOne(erdir, outFileName + x.Min(e => e.Value.Count) + "-" + x.Max(e => e.Value.Count), x, materials, true, true)));
-
+            File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_fails.txt", fails);
             while (threads.Any(x => x.IsAlive) || texThreads.Any(x => x.IsAlive))
             {
 
             }
-            File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_fails.txt", fails);
             sw.Stop();
             fails.Clear();
             fails.Add($"{sw.Elapsed.Minutes}m {sw.Elapsed.Seconds}s {sw.Elapsed.Milliseconds}ms");
@@ -1163,9 +1080,10 @@ namespace FLVERtoASCII
 
         }
 
+        List<string> textureNames = new List<string>();
         public void convertTextures(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, ref List<string> fails, string erdir, string matPathFirst)
         {
-            List<string> textureNames = new List<string>();
+            
             for (int i = 0; i < Model.Count; i++)
             {
                 if (!materials.ContainsKey(Model[i].GetHashCode()))
@@ -1177,6 +1095,7 @@ namespace FLVERtoASCII
                 {
                     if (Model[i].Materials[j].MTD == "")
                     {
+                        fails.Add("MATBIN is empty");
                         continue;
                     }
                     if (matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)) == null)
@@ -1198,15 +1117,18 @@ namespace FLVERtoASCII
                     {
                         if (materials[Model[i].GetHashCode()][j].Samplers[k].Path == "")
                         {
+                            fails.Add("TPF skipped cause it's empty");
                             continue;
                         }
                         string realPath = getRealTexturePath(materials[Model[i].GetHashCode()][j].Samplers[k].Path, erdir);
                         if (realPath == "")
                         {
+                            fails.Add("TPF skipped, something wrong with path: " + materials[Model[i].GetHashCode()][j].Samplers[k].Path);
                             continue;
                         }
                         if (textureNames.Contains(materials[Model[i].GetHashCode()][j].Samplers[k].Path))
                         {
+                            fails.Add("TPF skipped, already processed: " + materials[Model[i].GetHashCode()][j].Samplers[k].Path);
                             continue;
                         }
                         else textureNames.Add(materials[Model[i].GetHashCode()][j].Samplers[k].Path);
@@ -1221,7 +1143,6 @@ namespace FLVERtoASCII
                             fails.Add("Cannot load TPF " + realPath);
                             continue;
                         }
-
                     }
                 }
                 //transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
