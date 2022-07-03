@@ -20,3 +20,6 @@ New Multithreaded option, performance tests were run on 1600X (6c/12t):
 
 ## PLAYER CHARACTER MERGING AND CONVERSION
 WIP
+
+# REQUIREMENTS
+[SoulsFormats](https://github.com/JKAnderson/SoulsFormats) (er branch), oo2core_6_win64.dll
