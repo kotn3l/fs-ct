@@ -24,8 +24,24 @@ namespace FLVERtoASCII
         string[] Games_ToString = new string[] { "Elden Ring", "Sekiro", "Bloodborne", "Dark Souls 1/3" };
         private string ER_working_dir = "";
         private List<string> armorsets = new List<string>();
+        private List<string> weapons = new List<string>();
+        private List<string> hairs = new List<string>();
+        private List<string> eyebrows = new List<string>();
+        //private List<string> eyelashes = new List<string>();
+        private List<string> beards = new List<string>();
+
+        int eyebrowStart = 2000;
+        int beardsStart = 3000;
+        //FG101-152: faces
+        //FG15XX: eyes
+        //FG20XX: eyebrows
+        //FG30XX: beards
+        //FG50XX: eyepatch etc
+        //FG70XX: eyelashes
+
+
         string[] partsPrefix = new string[] { "am_m_", "bd_m_", "hd_m_", "lg_m_" };
-        string[] bodyPrefix = new string[] { "fg_m_", "fc_m_", "hr_a_" };
+        string[] bodyPrefix = new string[] { "fg_a_", "fc_m_", "hr_a_" };
         string weaponPrefix = "wp_a_";
         public static readonly Dictionary<string, string> ERmaps = new Dictionary<string, string>
         {
@@ -154,10 +170,24 @@ namespace FLVERtoASCII
             mapBox.SelectedIndex = 0;
             mapBox.Enabled = false;
             cb_GameList.DataSource = Games_ToString;
+            loadSettings();
             //bones.Checked = false;
             //bones.Enabled = false;
         }
-
+        private void loadSettings()
+        {
+            if (form.Default.default_er_dir != "" && Directory.Exists(form.Default.default_er_dir))
+            {
+                ER_working_dir = form.Default.default_er_dir;
+                loadDir();
+            }
+            parts_list.SelectedIndex = form.Default.armorIndex;
+            lefthand.SelectedIndex = form.Default.leftWPIndex;
+            righthand.SelectedIndex = form.Default.rightWPIndex;
+            beardparts.SelectedIndex = form.Default.beardIndex;
+            hairparts.SelectedIndex = form.Default.hairIndex;
+            eyebrowparts.SelectedIndex = form.Default.eyebrowIndex;
+        }
         private void browse_Button_Click(object sender, EventArgs e)
         {
             int size = -1;
@@ -280,6 +310,7 @@ namespace FLVERtoASCII
             root.Enabled = bones.Checked;
         }
 
+        string[] tempParts;
         private void Select_ER_workingDir_Click(object sender, EventArgs e)
         {
             using (var fbd = new FolderBrowserDialog())
@@ -289,10 +320,25 @@ namespace FLVERtoASCII
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
                     ER_working_dir = fbd.SelectedPath;
+                    form.Default.default_er_dir = ER_working_dir;
+                    form.Default.Save();
                 }
             }
+            loadDir();
+        }
 
-            string[] tempParts = Directory.GetFiles(ER_working_dir+"\\parts", "*.partsbnd");
+        private void loadDir()
+        {
+            tempParts = Directory.GetFiles(ER_working_dir + "\\parts", "*.partsbnd");
+            mapBox.Enabled = true;
+            getBodyParts();
+            getArmorSets();
+            getWeapons();
+        }
+
+        private void getArmorSets()
+        {
+           
             for (int i = 0; i < tempParts.Length; i++)
             {
                 for (int j = 0; j < partsPrefix.Length; j++)
@@ -303,21 +349,86 @@ namespace FLVERtoASCII
                         {
                             armorsets.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5));
                         }
-                        
+
                     }
-                } 
+                }
             }
             armorsets.Sort();
             parts_list.DataSource = armorsets;
-            mapBox.Enabled = true;
+        }
 
+        private void getWeapons()
+        {
+            //string[] tempParts = Directory.GetFiles(ER_working_dir + "\\parts", "*.partsbnd");
+            for (int i = 0; i < tempParts.Length; i++)
+            {
+                    if (Path.GetFileName(tempParts[i]).Contains(weaponPrefix))
+                    {
+                        if (!weapons.Contains(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5)))
+                        {
+                            weapons.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5));
+                        }
+
+                    }
+            }
+            weapons.Sort();
+            lefthand.DataSource = new List<string>(weapons);
+            righthand.DataSource = new List<string>(weapons);
 
         }
+
+        
+        private void getBodyParts()
+        {
+            //string[] tempParts = Directory.GetFiles(ER_working_dir + "\\parts", "*.partsbnd");
+            for (int i = 0; i < tempParts.Length; i++)
+            {
+                if (Path.GetFileName(tempParts[i]).Contains(bodyPrefix[0])) //FG, azaz eyebrows, beards 
+                {
+                    int id;
+                    string name = Path.GetFileNameWithoutExtension(tempParts[i]);
+                    string number = name.Substring(name.Length-4,4);
+                    if (!int.TryParse(number, out id))
+                    {
+                        continue;
+                    }
+
+                    if (id >= beardsStart && id < 4000)
+                    {
+                        if (!beards.Contains(name.Substring(5)))
+                        {
+                            beards.Add(name.Substring(5));
+                        }
+                    } else if (id >= eyebrowStart && id < beardsStart)
+                    {
+                        if (!eyebrows.Contains(name.Substring(5)))
+                        {
+                            eyebrows.Add(name.Substring(5));
+                        }
+                    }
+
+
+                } else if (Path.GetFileName(tempParts[i]).Contains(bodyPrefix[2])) //azaz HAIR
+                {
+                    if (!hairs.Contains(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5)))
+                    {
+                        hairs.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5));
+                    }
+                }
+            }
+            eyebrows.Sort();
+            beards.Sort();
+            hairs.Sort();
+            eyebrowparts.DataSource = eyebrows;
+            beardparts.DataSource = beards;
+            hairparts.DataSource = hairs;
+        } 
 
         private void merge_armors_Click(object sender, EventArgs e)
         {
             Conversion c = new Conversion();
-            c.armorset(ER_working_dir, armorsets[parts_list.SelectedIndex]);
+            c.armorset(ER_working_dir, armorsets[parts_list.SelectedIndex], weapons[lefthand.SelectedIndex], weapons[righthand.SelectedIndex],
+                beards[beardparts.SelectedIndex], eyebrows[eyebrowparts.SelectedIndex], hairs[hairparts.SelectedIndex]);
         }
 
         public void SetProgress(int progress)
@@ -335,6 +446,64 @@ namespace FLVERtoASCII
             string selected = (string)mapBox.SelectedItem;
             await Task.Run(() => c.map(g,ER_working_dir, test, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
             
+        }
+
+        private void parts_list_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (parts_list.SelectedIndex > 0)
+            {if (parts_list.SelectedIndex > 0)
+                {
+                    form.Default.armorIndex = parts_list.SelectedIndex;
+                    form.Default.Save();
+                }
+            }
+        }
+
+        private void lefthand_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lefthand.SelectedIndex > 0)
+            {
+                {
+                    form.Default.leftWPIndex = lefthand.SelectedIndex;
+                    form.Default.Save();
+                }
+            }
+        }
+
+        private void righthand_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (righthand.SelectedIndex > 0)
+            {
+                form.Default.rightWPIndex = righthand.SelectedIndex;
+                form.Default.Save();
+            }
+        }
+
+        private void beardparts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (beardparts.SelectedIndex > 0)
+            {
+                form.Default.beardIndex = beardparts.SelectedIndex;
+                form.Default.Save();
+            }
+        }
+
+        private void hairparts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (hairparts.SelectedIndex > 0)
+            {
+                form.Default.hairIndex = hairparts.SelectedIndex;
+                form.Default.Save();
+            }
+        }
+
+        private void eyebrowparts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (eyebrowparts.SelectedIndex > 0)
+            {
+                form.Default.eyebrowIndex = eyebrowparts.SelectedIndex;
+                form.Default.Save();
+            }
         }
     }
 }

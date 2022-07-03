@@ -47,6 +47,16 @@
             this.mapBox = new System.Windows.Forms.ListBox();
             this.cb_GameList = new System.Windows.Forms.ComboBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.lefthand = new System.Windows.Forms.ListBox();
+            this.righthand = new System.Windows.Forms.ListBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.beardparts = new System.Windows.Forms.ListBox();
+            this.hairparts = new System.Windows.Forms.ListBox();
+            this.eyebrowparts = new System.Windows.Forms.ListBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // flverPath
@@ -116,7 +126,7 @@
             // 
             // merge
             // 
-            this.merge.Location = new System.Drawing.Point(160, 70);
+            this.merge.Location = new System.Drawing.Point(168, 69);
             this.merge.Name = "merge";
             this.merge.Size = new System.Drawing.Size(75, 23);
             this.merge.TabIndex = 7;
@@ -129,9 +139,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 75);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(142, 13);
+            this.label1.Size = new System.Drawing.Size(150, 13);
             this.label1.TabIndex = 8;
-            this.label1.Text = "Merge armor pieces together";
+            this.label1.Text = "Convert all chrbnds from folder";
             // 
             // browseTex
             // 
@@ -172,8 +182,9 @@
             this.parts_list.FormattingEnabled = true;
             this.parts_list.Location = new System.Drawing.Point(12, 284);
             this.parts_list.Name = "parts_list";
-            this.parts_list.Size = new System.Drawing.Size(76, 420);
+            this.parts_list.Size = new System.Drawing.Size(76, 446);
             this.parts_list.TabIndex = 12;
+            this.parts_list.SelectedIndexChanged += new System.EventHandler(this.parts_list_SelectedIndexChanged);
             // 
             // Select_ER_workingDir
             // 
@@ -188,17 +199,17 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 265);
+            this.label2.Location = new System.Drawing.Point(29, 268);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(30, 13);
+            this.label2.Size = new System.Drawing.Size(39, 13);
             this.label2.TabIndex = 14;
-            this.label2.Text = "parts";
+            this.label2.Text = "Armors";
             // 
             // merge_armors
             // 
-            this.merge_armors.Location = new System.Drawing.Point(95, 284);
+            this.merge_armors.Location = new System.Drawing.Point(94, 233);
             this.merge_armors.Name = "merge_armors";
-            this.merge_armors.Size = new System.Drawing.Size(75, 23);
+            this.merge_armors.Size = new System.Drawing.Size(76, 23);
             this.merge_armors.TabIndex = 15;
             this.merge_armors.Text = "Merge";
             this.merge_armors.UseVisualStyleBackColor = true;
@@ -206,7 +217,7 @@
             // 
             // map
             // 
-            this.map.Location = new System.Drawing.Point(471, 284);
+            this.map.Location = new System.Drawing.Point(516, 255);
             this.map.Name = "map";
             this.map.Size = new System.Drawing.Size(75, 23);
             this.map.TabIndex = 16;
@@ -217,7 +228,7 @@
             // mapBox
             // 
             this.mapBox.FormattingEnabled = true;
-            this.mapBox.Location = new System.Drawing.Point(176, 284);
+            this.mapBox.Location = new System.Drawing.Point(416, 284);
             this.mapBox.Name = "mapBox";
             this.mapBox.Size = new System.Drawing.Size(289, 420);
             this.mapBox.TabIndex = 17;
@@ -232,16 +243,116 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(12, 239);
+            this.progressBar1.Location = new System.Drawing.Point(16, 168);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(534, 23);
             this.progressBar1.TabIndex = 19;
+            // 
+            // lefthand
+            // 
+            this.lefthand.FormattingEnabled = true;
+            this.lefthand.Location = new System.Drawing.Point(94, 284);
+            this.lefthand.Name = "lefthand";
+            this.lefthand.Size = new System.Drawing.Size(76, 212);
+            this.lefthand.TabIndex = 20;
+            this.lefthand.SelectedIndexChanged += new System.EventHandler(this.lefthand_SelectedIndexChanged);
+            // 
+            // righthand
+            // 
+            this.righthand.FormattingEnabled = true;
+            this.righthand.Location = new System.Drawing.Point(94, 518);
+            this.righthand.Name = "righthand";
+            this.righthand.Size = new System.Drawing.Size(76, 212);
+            this.righthand.TabIndex = 21;
+            this.righthand.SelectedIndexChanged += new System.EventHandler(this.righthand_SelectedIndexChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(108, 268);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(46, 13);
+            this.label3.TabIndex = 22;
+            this.label3.Text = "Left WP";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(108, 502);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(53, 13);
+            this.label4.TabIndex = 23;
+            this.label4.Text = "Right WP";
+            // 
+            // beardparts
+            // 
+            this.beardparts.FormattingEnabled = true;
+            this.beardparts.Location = new System.Drawing.Point(176, 284);
+            this.beardparts.Name = "beardparts";
+            this.beardparts.Size = new System.Drawing.Size(76, 95);
+            this.beardparts.TabIndex = 24;
+            this.beardparts.SelectedIndexChanged += new System.EventHandler(this.beardparts_SelectedIndexChanged);
+            // 
+            // hairparts
+            // 
+            this.hairparts.FormattingEnabled = true;
+            this.hairparts.Location = new System.Drawing.Point(176, 401);
+            this.hairparts.Name = "hairparts";
+            this.hairparts.Size = new System.Drawing.Size(76, 95);
+            this.hairparts.TabIndex = 25;
+            this.hairparts.SelectedIndexChanged += new System.EventHandler(this.hairparts_SelectedIndexChanged);
+            // 
+            // eyebrowparts
+            // 
+            this.eyebrowparts.FormattingEnabled = true;
+            this.eyebrowparts.Location = new System.Drawing.Point(176, 518);
+            this.eyebrowparts.Name = "eyebrowparts";
+            this.eyebrowparts.Size = new System.Drawing.Size(76, 95);
+            this.eyebrowparts.TabIndex = 27;
+            this.eyebrowparts.SelectedIndexChanged += new System.EventHandler(this.eyebrowparts_SelectedIndexChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(189, 268);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(40, 13);
+            this.label5.TabIndex = 28;
+            this.label5.Text = "Beards";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(198, 385);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(31, 13);
+            this.label6.TabIndex = 29;
+            this.label6.Text = "Hairs";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(189, 502);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(53, 13);
+            this.label7.TabIndex = 30;
+            this.label7.Text = "Eyebrows";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(828, 752);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.eyebrowparts);
+            this.Controls.Add(this.hairparts);
+            this.Controls.Add(this.beardparts);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.righthand);
+            this.Controls.Add(this.lefthand);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.cb_GameList);
             this.Controls.Add(this.mapBox);
@@ -289,6 +400,16 @@
         private System.Windows.Forms.ListBox mapBox;
         private System.Windows.Forms.ComboBox cb_GameList;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ListBox lefthand;
+        private System.Windows.Forms.ListBox righthand;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ListBox beardparts;
+        private System.Windows.Forms.ListBox hairparts;
+        private System.Windows.Forms.ListBox eyebrowparts;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
     }
 }
 
