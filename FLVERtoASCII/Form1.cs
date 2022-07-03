@@ -441,10 +441,11 @@ namespace FLVERtoASCII
             //string s = $"//map//mapstudio//{maps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb";
             Conversion c = new Conversion();
             //c.msg(ER_working_dir, "");
-            MSBE test = MSBE.Read(ER_working_dir+ $"//map//mapstudio//{ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb");
+            //MSBE test = MSBE.Read(ER_working_dir+ $"//map//mapstudio//{ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb");
             Games g = (Games)cb_GameList.SelectedIndex;
             string selected = (string)mapBox.SelectedItem;
-            await Task.Run(() => c.map(g,ER_working_dir, test, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
+            string map = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
+            await Task.Run(() => c.map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
             
         }
 
