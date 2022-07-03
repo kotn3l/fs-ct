@@ -471,6 +471,168 @@ namespace FLVERtoASCII
 
         }
 
+        public void WriteFLVERtoASCIIInOneCustomBones(string outPath, string fileName, List<FLVER.Bone> cbones, bool bones = false, bool addRoot = false)
+        {
+            List<string> ascii = new List<string>();
+            int plusBone = 0;
+            if (bones)
+            {
+
+                if (addRoot)
+                {
+                    plusBone = 1;
+                }
+                ascii.Add((cbones.Count+plusBone).ToString()); //Bone count
+
+                if (addRoot)
+                {
+                    ascii.Add("root");
+                    ascii.Add("-1");
+                    ascii.Add("0 0 0 0 0 0 1");
+                }
+                var boneMatrices = new Matrix4x4[cbones.Count + plusBone];
+                for (int i = 0; i < cbones.Count; i++) //Bone names, parents, xyz
+                {
+                    //ascii.Add(countIndex[i] == 0 ? Model[index].Bones[i].Name : Model[index].Bones[i].Name + countIndex[i]);
+                    ascii.Add(cbones[i].Name);
+                    short pIndex = cbones[i].ParentIndex;
+                    Matrix4x4 translation = Matrix4x4.Identity;
+                    if (true)
+                    {
+                        translation.M11 *= -1; //FLIP BONES along Z axis
+                    }
+                    if (pIndex != -1)
+                    {
+                        translation = boneMatrices[pIndex];
+                    }
+                    boneMatrices[i] = cbones[i].ComputeLocalTransform() * translation;
+                    //Quaternion rot = Quaternion.CreateFromRotationMatrix(boneMatrices[i]);
+                    ascii.Add((pIndex + plusBone).ToString());
+                    ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
+                              boneMatrices[i].M42.ToString("0.##########") + " " +
+                              boneMatrices[i].M43.ToString("0.##########"));
+                }
+                
+            }
+            else
+            {
+                ascii.Add("0");
+            }
+            
+            uint MeshSum = 0;
+            for (int index = 0; index < Model.Count; index++)
+            {
+                for (int i = 0; i < Model[index].Meshes.Count; i++) //overall meshes
+                {
+                    MeshSum++;
+                }
+
+            }
+            ascii.Add(MeshSum.ToString());
+            for (int index = 0; index < Model.Count; index++)
+            {
+                int Tex = 0;
+                uint VertSum = 0;
+                for (int i = 0; i < Model[index].Materials.Count; i++)
+                {
+                    Tex++;
+                    /*for (int j = 0; j < Model[index].Materials[i].Textures.Count; j++)
+                    {
+
+                    }*/
+                }
+
+                for (int i = 0; i < Model[index].Meshes.Count; i++)
+                {
+                    for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //overall vertices in one mesh
+                    {
+                        VertSum++;
+                    }
+                    ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); //mesh name
+                    ascii.Add(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
+                    ascii.Add(Tex.ToString()); //tex count
+                    for (int k = 0; k < Tex; k++)
+                    {
+                        ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].MTD);
+                        ascii.Add("0");
+                    }
+                    ascii.Add(VertSum.ToString()); //mesh vertices count
+                    VertSum = 0;
+                    for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
+                    {
+                        //vert pos
+                        ascii.Add(-Model[index].Meshes[i].Vertices[j].Position.X + " " +
+                                  Model[index].Meshes[i].Vertices[j].Position.Y + " " +
+                                  Model[index].Meshes[i].Vertices[j].Position.Z);
+                        //vert norm
+                        ascii.Add(-Model[index].Meshes[i].Vertices[j].Normal.X + " " +
+                                  Model[index].Meshes[i].Vertices[j].Normal.Y + " " +
+                                  Model[index].Meshes[i].Vertices[j].Normal.Z);
+                        //vert colors
+                        ascii.Add((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
+                                  (Model[index].Meshes[i].Vertices[j].Colors[0].G * 255) + " " +
+                                  (Model[index].Meshes[i].Vertices[j].Colors[0].B * 255) + " " +
+                                  (Model[index].Meshes[i].Vertices[j].Colors[0].A * 255));
+                        //vert uvs
+                        for (int k = 0; k < Model[index].Meshes[i].Vertices[j].UVs.Count; k++)
+                        {
+                            ascii.Add(Model[index].Meshes[i].Vertices[j].UVs[k].X + " " +
+                                  Model[index].Meshes[i].Vertices[j].UVs[k].Y);
+                        }
+                        //vert bone indices
+                        string indices = "";
+                        for (int k = 0; k < 3; k++)
+                        {
+                            int t = cbones.FindIndex(x => x.Name == Model[index].Bones[Model[index].Meshes[i].Vertices[j].BoneIndices[k]].Name);
+                                    indices += (t + plusBone) + " ";
+                            //Model[index].Meshes[i].Vertices[j].BoneIndices[k]
+                            
+                            //IndiceIndex = k;
+                        }
+                        int temp = cbones.FindIndex(x => x.Name == Model[index].Bones[Model[index].Meshes[i].Vertices[j].BoneIndices[3]].Name);
+
+                        indices += (temp + plusBone);
+
+                        //indices += Model[index].Meshes[i].Vertices[j].BoneIndices[3] + plusBone;
+                        ascii.Add(indices);
+
+                        string weights = "";
+                        int WeightIndex = 0;
+                        for (int k = 0; k < Model[index].Meshes[i].Vertices[j].BoneWeights.Length - 1; k++)
+                        {
+                            weights += Model[index].Meshes[i].Vertices[j].BoneWeights[k] + " ";
+                            WeightIndex = k;
+                        }
+                        weights += Model[index].Meshes[i].Vertices[j].BoneWeights[WeightIndex + 1];
+                        ascii.Add(weights);
+                    }
+
+
+                    int FaceCount = Model[index].Meshes[i].FaceSets[0].Indices.Count;
+                    ascii.Add((FaceCount / 3).ToString());
+                    for (int j = 0; j < FaceCount; j++)
+                    {
+                        ascii.Add(Model[index].Meshes[i].FaceSets[0].Indices[j] + " " +
+                                  Model[index].Meshes[i].FaceSets[0].Indices[j + 2] + " " +
+                                  Model[index].Meshes[i].FaceSets[0].Indices[j + 1]); //j+1 is last because of flipping
+                        j++;
+                        j++;
+                    }
+
+                }
+            }
+            
+            
+
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
+            {
+                foreach (string line in ascii)
+                    outputFile.WriteLine(line);
+            }
+
+            ascii.Clear();
+            
+        }
         public void chrbndFolder(string inPath, string outPath)
         {
             string[] tomb = Directory.GetFiles(inPath, "*.chrbnd.dcx");
@@ -592,8 +754,13 @@ namespace FLVERtoASCII
 
             //FLVER2 merged = new FLVER2();
             
-
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0102.partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\bd_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\hd_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\am_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\lg_m_" + armor + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_1500.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_0152.partsbnd"));
@@ -602,33 +769,58 @@ namespace FLVERtoASCII
             mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + eyebrows + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\hr_a_" + hairs + ".partsbnd"));
 
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\bd_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\hd_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\am_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\lg_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
+            
+
 
             for (int i = 0; i < mergeBND.Count; i++)
             {
                 merge.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
+                model.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
             }
+            mergeBND.Clear();
 
             List<FLVER.Bone> full = new List<FLVER.Bone>(merge[0].Bones);
+
             for (int i = 1; i < merge.Count; i++)
             {
                 for (int j = 0; j < merge[i].Bones.Count; j++)
                 {
                     if (merge[i].Bones[j].ParentIndex == -1)
                     {
-                        if (full.Where(x => x.Name == merge[i].Bones[j].Name).ToList().Count <= 0)
+                        if (!full.Any(x => x.Name == merge[i].Bones[j].Name))
                         {
                             full.Add(merge[i].Bones[j]);
                         }
                         continue;
                     }
-                    //FLVER.Bone temp = merge[i].Bones[j];
-                    for (int k = 0; k < full.Count; k++) //ha nem -1 a PID akk végigmegyünk a MASTER rigen
+
+                    if (full.Any(x => x.Name == merge[i].Bones[j].Name))
+                    {
+                        for (int k = 0; k < merge[i].Bones.Count; k++)
+                        {
+                            if (merge[i].Bones[k].ParentIndex == j)
+                            {
+                                merge[i].Bones[k].ParentIndex = (short)full.FindIndex(x => x.Name == merge[i].Bones[j].Name);
+                                if (full.Any(x => x.Name == merge[i].Bones[k].Name))
+                                {
+                                    int minus = full.FindIndex(x => x.Name == merge[i].Bones[k].Name && x.ParentIndex == -1);
+                                    if (minus > -1)
+                                    {
+                                        int another = full.FindIndex(x => x.Name == merge[i].Bones[merge[i].Bones[k].ParentIndex].Name);
+                                        while (full[another].ParentIndex < 0)
+                                        {
+                                            int bone = merge[i].Bones.FindIndex(x => x.Name == full[another].Name);
+                                            another = full.FindIndex(x => x.Name == merge[i].Bones[bone].Name);
+                                        }
+                                        full[minus].ParentIndex = (short)another;
+                                    }
+
+                                } else full.Add(merge[i].Bones[k]);
+
+                            }
+                        }
+                    }
+                    /*for (int k = 0; k < full.Count; k++) //ha nem -1 a PID akk végigmegyünk a MASTER rigen
                     {
                         if (merge[i].Bones[j].Name == full[k].Name) //ha név alapján már benne van a j-edik
                         {
@@ -649,13 +841,20 @@ namespace FLVERtoASCII
                             //full.Add();
                             break;
                         }
-                    }
+                    }*/
+                    
                 }
+                
             }
-
 
             ;
 
+            WriteFLVERtoASCIIInOneCustomBones(erdir, armor +"_"+lefthand+"_"+righthand+"_"+beards+"_"+"_"+hairs+"_"+eyebrows, full,true, true);
+
+            merge.Clear();
+            full.Clear();
+            Dispose();
+            return;
         }
 
         private Dictionary<string, FLVER2> geometry;
@@ -678,10 +877,6 @@ namespace FLVERtoASCII
             matbnd = BND4.Read(erdir + "//material//allmaterial.matbinbnd");
             string matPathFirst = "";
             List<string> geoms = new List<string>();
-
-            List<Vector3> translations = new List<Vector3>();
-            List<Vector3> rotations = new List<Vector3>();
-            List<Vector3> scale = new List<Vector3>();
 
             parts.AddRange(msb.Parts.Objects);
             parts.AddRange(msb.Parts.Collisions);
@@ -894,6 +1089,15 @@ namespace FLVERtoASCII
             File.WriteAllLines(erdir + "\\" + outFileName + string.Format("{0:yy-MM-dd_HH-mm-ss-fff}", DateTime.Now) + "_PERFORMANCE_MULTI.txt", fails);
 
 
+
+            geometry.Clear();
+            pieceNames.Clear();
+            transforms.Clear();
+            materials.Clear();
+            geoms.Clear();
+            model.Clear();
+            fails.Clear();
+            Dispose();
             return;
         }
 

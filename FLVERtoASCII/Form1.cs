@@ -424,11 +424,19 @@ namespace FLVERtoASCII
             hairparts.DataSource = hairs;
         } 
 
-        private void merge_armors_Click(object sender, EventArgs e)
+        private async void merge_armors_Click(object sender, EventArgs e)
         {
-            Conversion c = new Conversion();
-            c.armorset(ER_working_dir, armorsets[parts_list.SelectedIndex], weapons[lefthand.SelectedIndex], weapons[righthand.SelectedIndex],
-                beards[beardparts.SelectedIndex], eyebrows[eyebrowparts.SelectedIndex], hairs[hairparts.SelectedIndex]);
+            //Conversion c = new Conversion();
+            int ai = parts_list.SelectedIndex;
+            int bi = beardparts.SelectedIndex;
+            int li = lefthand.SelectedIndex;
+            int ri = righthand.SelectedIndex;
+            int ei = eyebrowparts.SelectedIndex;
+            int hi = hairparts.SelectedIndex;
+            await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
+                beards[bi], eyebrows[ei], hairs[hi]));
+            //c.Dispose();
+            GC.Collect();
         }
 
         public void SetProgress(int progress)
@@ -439,14 +447,14 @@ namespace FLVERtoASCII
         private async void map_Click(object sender, EventArgs e)
         {
             //string s = $"//map//mapstudio//{maps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb";
-            Conversion c = new Conversion();
+            //Conversion c = new Conversion();
             //c.msg(ER_working_dir, "");
             //MSBE test = MSBE.Read(ER_working_dir+ $"//map//mapstudio//{ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb");
             Games g = (Games)cb_GameList.SelectedIndex;
             string selected = (string)mapBox.SelectedItem;
             string map = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
-            await Task.Run(() => c.map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
-            
+            await Task.Run(() => new Conversion().map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
+            GC.Collect();
         }
 
         private void parts_list_SelectedIndexChanged(object sender, EventArgs e)
