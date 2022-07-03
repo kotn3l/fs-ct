@@ -896,10 +896,6 @@ namespace FLVERtoASCII
 
             return;
         }
-        public void character()
-        {
-
-        }
 
         List<string> textureNames = new List<string>();
         public void convertTextures(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, ref List<string> fails, string erdir, string matPathFirst)
