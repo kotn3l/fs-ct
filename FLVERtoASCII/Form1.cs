@@ -19,9 +19,16 @@ namespace FLVERtoASCII
         BLOODBORNE = 2,
         DARK_SOULS = 3
     }
+
+    public enum LANG
+    {
+        JPNJP = 0,
+        ENGUS = 1
+    }
     public partial class Form1 : Form
     {
         string[] Games_ToString = new string[] { "Elden Ring", "Sekiro", "Bloodborne", "Dark Souls 1/3" };
+        string[] Lang_ToString = new string[] { "English", "Japanese" };
         private string ER_working_dir = "";
         private List<string> armorsets = new List<string>();
         private List<string> weapons = new List<string>();
@@ -433,9 +440,11 @@ namespace FLVERtoASCII
             int ri = righthand.SelectedIndex;
             int ei = eyebrowparts.SelectedIndex;
             int hi = hairparts.SelectedIndex;
-            await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
-                beards[bi], eyebrows[ei], hairs[hi]));
+            //await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
+            //beards[bi], eyebrows[ei], hairs[hi]));
             //c.Dispose();
+            new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
+                beards[bi], eyebrows[ei], hairs[hi]);
             GC.Collect();
         }
 

@@ -470,7 +470,6 @@ namespace FLVERtoASCII
             ascii.Clear();
 
         }
-
         public void WriteFLVERtoASCIIInOneCustomBones(string outPath, string fileName, List<FLVER.Bone> cbones, bool bones = false, bool addRoot = false)
         {
             List<string> ascii = new List<string>();
@@ -753,14 +752,16 @@ namespace FLVERtoASCII
             List<FLVER2> merge = new List<FLVER2>(); //.Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes)
 
             //FLVER2 merged = new FLVER2();
-            
+            //FC_M_0000_M
+
+            mergeBND.Add(BND4.Read(erdir + $"\\parts\\FC_M_0000_M.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0102.partsbnd"));
+            
             mergeBND.Add(BND4.Read(erdir + "\\parts\\bd_m_" + armor + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\hd_m_" + armor + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\am_m_" + armor + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\lg_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
+            
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_1500.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_0152.partsbnd"));
@@ -780,7 +781,7 @@ namespace FLVERtoASCII
             mergeBND.Clear();
 
             List<FLVER.Bone> full = new List<FLVER.Bone>(merge[0].Bones);
-
+            
             for (int i = 1; i < merge.Count; i++)
             {
                 for (int j = 0; j < merge[i].Bones.Count; j++)
@@ -807,7 +808,7 @@ namespace FLVERtoASCII
                                     if (minus > -1)
                                     {
                                         int another = full.FindIndex(x => x.Name == merge[i].Bones[merge[i].Bones[k].ParentIndex].Name);
-                                        while (full[another].ParentIndex < 0)
+                                        while (another < full.Count && another > 0 && full[another].ParentIndex < 0)
                                         {
                                             int bone = merge[i].Bones.FindIndex(x => x.Name == full[another].Name);
                                             another = full.FindIndex(x => x.Name == merge[i].Bones[bone].Name);
@@ -820,31 +821,73 @@ namespace FLVERtoASCII
                             }
                         }
                     }
-                    /*for (int k = 0; k < full.Count; k++) //ha nem -1 a PID akk végigmegyünk a MASTER rigen
-                    {
-                        if (merge[i].Bones[j].Name == full[k].Name) //ha név alapján már benne van a j-edik
-                        {
-                            //List<int> indexes = new List<int>();
-                            merge[i].Bones.RemoveAt(j);
-                            //merge[i].Bones[j].ParentIndex = full[k].ParentIndex; //a PIDjét áttesszünk a MASTER rigeben talált PIDre
-
-                            for (int l = j; l < merge[i].Bones.Count; l++) //megnézzük ami ezt referencálta
-                            {
-                                if (merge[i].Bones[l].ParentIndex == j) //ha utána még van olyan bone aminek a j a PIDje
-                                {
-                                    //indexes.Add(j);
-                                    merge[i].Bones[l].ParentIndex = (short)k;
-                                    full.Add(merge[i].Bones[l]);
-
-                                }
-                            }
-                            //full.Add();
-                            break;
-                        }
-                    }*/
                     
                 }
                 
+            }
+            
+            mergeBND.Clear();
+            int rhand = full.FindIndex(x => x.Name == "R_Weapon");
+            int lhand = full.FindIndex(x => x.Name == "L_Shield");
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
+            mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
+            merge.Clear();
+            for (int i = 0; i < mergeBND.Count; i++)
+            {
+                merge.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
+                model.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
+            }
+
+            for (int i = 0; i < merge.Count; i++)
+            {
+                for (int j = 0; j < merge[i].Bones.Count; j++)
+                {
+                    if (i % 2 == 0) //right
+                    {
+                        if (merge[i].Bones[j].ParentIndex == -1)
+                        {
+                            merge[i].Bones[j].ParentIndex = (short)rhand;
+                            merge[i].Bones[j].Translation = full[rhand].Translation;
+                            full.Add(merge[i].Bones[j]);
+                        }
+                    }
+                    else //left
+                    {
+                        if (merge[i].Bones[j].ParentIndex == -1)
+                        {
+                            merge[i].Bones[j].ParentIndex = (short)lhand;
+                            merge[i].Bones[j].Translation = full[lhand].Translation;
+                            full.Add(merge[i].Bones[j]);
+                        }
+                    }
+                    if (full.Any(x => x.Name == merge[i].Bones[j].Name))
+                    {
+                        for (int k = 0; k < merge[i].Bones.Count; k++)
+                        {
+                            if (merge[i].Bones[k].ParentIndex == j)
+                            {
+                                merge[i].Bones[k].ParentIndex = (short)full.FindIndex(x => x.Name == merge[i].Bones[j].Name);
+                                if (full.Any(x => x.Name == merge[i].Bones[k].Name))
+                                {
+                                    int minus = full.FindIndex(x => x.Name == merge[i].Bones[k].Name && x.ParentIndex == -1);
+                                    if (minus > -1)
+                                    {
+                                        int another = full.FindIndex(x => x.Name == merge[i].Bones[merge[i].Bones[k].ParentIndex].Name);
+                                        while (full[another].ParentIndex < 0)
+                                        {
+                                            int bone = merge[i].Bones.FindIndex(x => x.Name == full[another].Name);
+                                            another = full.FindIndex(x => x.Name == merge[i].Bones[bone].Name);
+                                        }
+                                        full[minus].ParentIndex = (short)another;
+                                    }
+
+                                }
+                                else full.Add(merge[i].Bones[k]);
+
+                            }
+                        }
+                    }
+                }
             }
 
             ;
@@ -1171,41 +1214,49 @@ namespace FLVERtoASCII
             }
         }
 
-        public void msg(string erdir, string outFileName)
+        private string decideLang(LANG language)
         {
-            BND4 item;
-            item = BND4.Read(erdir + "//msg//engus//item.msgbnd.dcx");
-
-            BND4 menu;
-            menu = BND4.Read(erdir + "//msg//engus//menu.msgbnd.dcx");
-
+            string lang = "";
+            switch (language)
+            {
+                case LANG.JPNJP:
+                    lang = "jpnjp";
+                    break;
+                default:
+                    lang = "engus";
+                    break;
+            }
+            return lang;
+        }
+        private List<string> fmgOut(BND4 item, string erdir, string itemmenu, string language)
+        {
+            List<string> temp = new List<string>();
             for (int i = 0; i < item.Files.Count; i++)
             {
-                if (!Directory.Exists(erdir + $"//msg//engus//item"))
+                if (!Directory.Exists(erdir + $"//msg//{language}//{itemmenu}"))
                 {
-                    Directory.CreateDirectory(erdir + $"//msg//engus//item");
+                    Directory.CreateDirectory(erdir + $"//msg//{language}//{itemmenu}");
                 }
                 FMG fmg = FMG.Read(item.Files[i].Bytes);
-                List<string> temp = new List<string>(fmg.Entries.Select(x => x.Text));
-                /*for (int j = 0; j < fmg.Entries.Count; j++)
-                {
-                    temp.Add(fmg.Entries[i].Text);
-                }*/
-                File.WriteAllLines(erdir + $"//msg//engus//item//{Path.GetFileNameWithoutExtension(item.Files[i].Name)}O.txt", temp);
-
+                temp = new List<string>(fmg.Entries.Select(x => x.Text));
+                File.WriteAllLines(erdir + $"//msg//{language}//{itemmenu}//{Path.GetFileNameWithoutExtension(item.Files[i].Name)}O.txt", temp);
             }
-            for (int i = 0; i < menu.Files.Count; i++)
-            {
-                if (!Directory.Exists(erdir + $"//msg//engus//menu"))
-                {
-                    Directory.CreateDirectory(erdir + $"//msg//engus//menu");
-                }
-                FMG fmg = FMG.Read(menu.Files[i].Bytes);
-                List<string> temp = new List<string>(fmg.Entries.Select(x => x.Text));
-                File.WriteAllLines(erdir + $"//msg//engus//menu//{Path.GetFileNameWithoutExtension(menu.Files[i].Name)}O.txt", temp);
-            }
-
-            ;
+            return temp;
+        }
+        public List<string> msgMenu(string erdir, LANG language)
+        {
+            BND4 menu;
+            string lang = decideLang(language);
+            menu = BND4.Read(erdir + $"//msg//{lang}//menu.msgbnd.dcx");
+            return fmgOut(menu, erdir, "menu",lang);
+            
+        }
+        public List<string> msgItem(string erdir, LANG language)
+        {
+            BND4 item;
+            string lang = decideLang(language);
+            item = BND4.Read(erdir + $"//msg//{lang}//item.msgbnd.dcx");
+            return fmgOut(item, erdir, "item", lang);
         }
         private static string getTexturePaths(string MTD, string firstPathPart)
         {
