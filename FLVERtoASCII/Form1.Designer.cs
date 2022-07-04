@@ -46,7 +46,6 @@
             this.map = new System.Windows.Forms.Button();
             this.mapBox = new System.Windows.Forms.ListBox();
             this.cb_GameList = new System.Windows.Forms.ComboBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.lefthand = new System.Windows.Forms.ListBox();
             this.righthand = new System.Windows.Forms.ListBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -241,13 +240,6 @@
             this.cb_GameList.Size = new System.Drawing.Size(174, 21);
             this.cb_GameList.TabIndex = 18;
             // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(16, 168);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(534, 23);
-            this.progressBar1.TabIndex = 19;
-            // 
             // lefthand
             // 
             this.lefthand.FormattingEnabled = true;
@@ -353,7 +345,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.righthand);
             this.Controls.Add(this.lefthand);
-            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.cb_GameList);
             this.Controls.Add(this.mapBox);
             this.Controls.Add(this.map);
@@ -399,7 +390,6 @@
         private System.Windows.Forms.Button map;
         private System.Windows.Forms.ListBox mapBox;
         private System.Windows.Forms.ComboBox cb_GameList;
-        private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.ListBox lefthand;
         private System.Windows.Forms.ListBox righthand;
         private System.Windows.Forms.Label label3;

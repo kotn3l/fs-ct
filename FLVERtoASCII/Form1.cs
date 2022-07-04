@@ -295,7 +295,6 @@ namespace FLVERtoASCII
             {
                 string file = openFileDialog1.FileName;
                 //flverPath.Text = file;
-                string saveName = Path.GetFileNameWithoutExtension(file);
                 //try
                 {
                     //FLVER2 test = FLVER2.Read(file);
@@ -446,11 +445,6 @@ namespace FLVERtoASCII
             new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
                 beards[bi], eyebrows[ei], hairs[hi]);
             GC.Collect();
-        }
-
-        public void SetProgress(int progress)
-        {
-            progressBar1.Value = progress;
         }
 
         private async void map_Click(object sender, EventArgs e)

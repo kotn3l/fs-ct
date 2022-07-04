@@ -470,7 +470,7 @@ namespace FLVERtoASCII
             ascii.Clear();
 
         }
-        public void WriteFLVERtoASCIIInOneCustomBones(string outPath, string fileName, List<FLVER.Bone> cbones, bool bones = false, bool addRoot = false)
+        public void WriteFLVERtoASCIIInOneCustomBones(string outPath, string fileName, List<FLVER.Bone> cbones, List<Matrix4x4> transform, Dictionary<int, List<MATBIN>> material, List<bool> overrideWeights, bool bones = false, bool addRoot = false)
         {
             List<string> ascii = new List<string>();
             int plusBone = 0;
@@ -559,14 +559,23 @@ namespace FLVERtoASCII
                     VertSum = 0;
                     for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                     {
+                        Vector3 transformedPos = Vector3.Transform(new Vector3(-Model[index].Meshes[i].Vertices[j].Position.X,
+                                                                                   Model[index].Meshes[i].Vertices[j].Position.Y,
+                                                                                   Model[index].Meshes[i].Vertices[j].Position.Z),
+                                                                                   transform[index]);
+                        Vector3 transformedNormal = Vector3.TransformNormal(new Vector3(-Model[index].Meshes[i].Vertices[j].Normal.X,
+                                                                                        Model[index].Meshes[i].Vertices[j].Normal.Y,
+                                                                                        Model[index].Meshes[i].Vertices[j].Normal.Z),
+                                                                                        transform[index]);
+
                         //vert pos
-                        ascii.Add(-Model[index].Meshes[i].Vertices[j].Position.X + " " +
-                                  Model[index].Meshes[i].Vertices[j].Position.Y + " " +
-                                  Model[index].Meshes[i].Vertices[j].Position.Z);
+                        ascii.Add(transformedPos.X + " " +
+                                  transformedPos.Y + " " +
+                                  transformedPos.Z);
                         //vert norm
-                        ascii.Add(-Model[index].Meshes[i].Vertices[j].Normal.X + " " +
-                                  Model[index].Meshes[i].Vertices[j].Normal.Y + " " +
-                                  Model[index].Meshes[i].Vertices[j].Normal.Z);
+                        ascii.Add(transformedNormal.X + " " +
+                                  transformedNormal.Y + " " +
+                                  transformedNormal.Z);
                         //vert colors
                         ascii.Add((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
                                   (Model[index].Meshes[i].Vertices[j].Colors[0].G * 255) + " " +
@@ -603,7 +612,11 @@ namespace FLVERtoASCII
                             WeightIndex = k;
                         }
                         weights += Model[index].Meshes[i].Vertices[j].BoneWeights[WeightIndex + 1];
-                        ascii.Add(weights);
+                        if (overrideWeights[index])
+                        {
+                            ascii.Add("1 1 1 1");
+                        }
+                        else ascii.Add(weights);
                     }
 
 
@@ -733,7 +746,35 @@ namespace FLVERtoASCII
 
         }
 
-        public void armorset(string erdir, string armor, string lefthand, string righthand, string beards, string eyebrows, string hairs, string male = "m")
+        private void assembleMasterRig(List<FLVER.Bone> full, FLVER2 merge, int j)
+        {
+            for (int k = 0; k < merge.Bones.Count; k++) //iterate through our bones
+            {
+                if (merge.Bones[k].ParentIndex == j) //if any other childbone references our bone by its PID
+                {
+                    int original = merge.Bones[k].ParentIndex; //save PID
+                    merge.Bones[k].ParentIndex = (short)full.FindIndex(x => x.Name == merge.Bones[j].Name); //change the PID of that childbone to the same as in MASTER
+                    if (full.Any(x => x.Name == merge.Bones[k].Name)) //if that childbone is also in the MASTER
+                    {
+                        int minus = -1;
+                        minus = full.FindIndex(x => x.Name == merge.Bones[k].Name && x.ParentIndex == -1); //find index of that childbone, but only if its PID is -1
+                        if (minus > -1) //if we can find it AKA its PID is -1
+                        {
+
+                            int another = full.FindIndex(x => x.Name == merge.Bones[original].Name); //get index from MASTER where the bone is the same as
+                            while (another < full.Count && another > 0 && full[another].ParentIndex < 0)
+                            {
+                                int bone = merge.Bones.FindIndex(x => x.Name == full[another].Name);
+                                another = full.FindIndex(x => x.Name == merge.Bones[bone].Name);
+                            }
+                            full[minus].ParentIndex = (short)another;
+                        }
+                    }
+                    else full.Add(merge.Bones[k]); //if childbone isnt in MASTER, add it
+                }
+            }
+        }
+        public void armorset(string erdir, string armor, string lefthand, string righthand, string beards, string eyebrows, string hairs, bool textures, string male = "m")
         {
             //FG101-152: faces
             //FG15XX: eyes
@@ -741,27 +782,28 @@ namespace FLVERtoASCII
             //FG30XX: beards
             //FG50XX: eyepatch etc
             //FG70XX: eyelashes
+            //WP2XXX: shields
 
             //eyelash 7001
             //eye 1500
             //beard 3001
             //eyebrow 2008 2007 2003
-
             List<BND4> mergeBND = new List<BND4>();
-
             List<FLVER2> merge = new List<FLVER2>(); //.Files.Where(i => Path.GetExtension(i.Name) == ".flver").ToList()[0].Bytes)
+            List<bool> weights = new List<bool>();
 
-            //FLVER2 merged = new FLVER2();
-            //FC_M_0000_M
+            mergeBND.Add(BND4.Read(erdir + $"\\chr\\c0000.chrbnd"));
+            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0100.partsbnd"));
 
-            mergeBND.Add(BND4.Read(erdir + $"\\parts\\FC_M_0000_M.partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0102.partsbnd"));
-            
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\bd_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\hd_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\am_m_" + armor + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\lg_m_" + armor + ".partsbnd"));
-            
+            string[] partsPrefix = new string[] { "am_", "bd_", "hd_", "lg_" };
+            foreach (string prefix in partsPrefix)
+            {
+                if (File.Exists(erdir + $"\\parts\\{prefix}m_{armor}.partsbnd"))
+                {
+                    mergeBND.Add(BND4.Read(erdir + $"\\parts\\{prefix}m_{armor}.partsbnd"));
+                }
+            }
+
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_1500.partsbnd"));
             mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_0152.partsbnd"));
@@ -770,18 +812,19 @@ namespace FLVERtoASCII
             mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + eyebrows + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\hr_a_" + hairs + ".partsbnd"));
 
-            
-
+            List<Matrix4x4> transforms = new List<Matrix4x4>();
+            Dictionary<int, List<MATBIN>> materials = new Dictionary<int, List<MATBIN>>();
 
             for (int i = 0; i < mergeBND.Count; i++)
             {
                 merge.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
                 model.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
+                weights.Add(false);
+                transforms.Add(Matrix4x4.Identity);
             }
             mergeBND.Clear();
 
             List<FLVER.Bone> full = new List<FLVER.Bone>(merge[0].Bones);
-            
             for (int i = 1; i < merge.Count; i++)
             {
                 for (int j = 0; j < merge[i].Bones.Count; j++)
@@ -794,20 +837,22 @@ namespace FLVERtoASCII
                         }
                         continue;
                     }
-
-                    if (full.Any(x => x.Name == merge[i].Bones[j].Name))
+                    if (full.Any(x => x.Name == merge[i].Bones[j].Name)) //if MASTER rig already has the bone by name
                     {
-                        for (int k = 0; k < merge[i].Bones.Count; k++)
+                        /*for (int k = 0; k < merge[i].Bones.Count; k++) //iterate through our bones
                         {
-                            if (merge[i].Bones[k].ParentIndex == j)
+                            if (merge[i].Bones[k].ParentIndex == j) //if any other childbone references our bone by its PID
                             {
-                                merge[i].Bones[k].ParentIndex = (short)full.FindIndex(x => x.Name == merge[i].Bones[j].Name);
-                                if (full.Any(x => x.Name == merge[i].Bones[k].Name))
+                                int original = merge[i].Bones[k].ParentIndex; //save PID
+                                merge[i].Bones[k].ParentIndex = (short)full.FindIndex(x => x.Name == merge[i].Bones[j].Name); //change the PID of that childbone to the same as in MASTER
+                                if (full.Any(x => x.Name == merge[i].Bones[k].Name)) //if that childbone is also in the MASTER
                                 {
-                                    int minus = full.FindIndex(x => x.Name == merge[i].Bones[k].Name && x.ParentIndex == -1);
-                                    if (minus > -1)
+                                    int minus = -1;
+                                    minus = full.FindIndex(x => x.Name == merge[i].Bones[k].Name && x.ParentIndex == -1); //find index of that childbone, but only if its PID is -1
+                                    if (minus > -1) //if we can find it AKA its PID is -1
                                     {
-                                        int another = full.FindIndex(x => x.Name == merge[i].Bones[merge[i].Bones[k].ParentIndex].Name);
+
+                                        int another = full.FindIndex(x => x.Name == merge[i].Bones[original].Name); //get index from MASTER where the bone is the same as
                                         while (another < full.Count && another > 0 && full[another].ParentIndex < 0)
                                         {
                                             int bone = merge[i].Bones.FindIndex(x => x.Name == full[another].Name);
@@ -816,27 +861,87 @@ namespace FLVERtoASCII
                                         full[minus].ParentIndex = (short)another;
                                     }
 
-                                } else full.Add(merge[i].Bones[k]);
+                                }
+                                else full.Add(merge[i].Bones[k]); //if childbone isnt in MASTER, add it
 
                             }
-                        }
+                        }*/
+                        assembleMasterRig(full,merge[i], j);
                     }
-                    
                 }
                 
             }
-            
             mergeBND.Clear();
-            int rhand = full.FindIndex(x => x.Name == "R_Weapon");
-            int lhand = full.FindIndex(x => x.Name == "L_Shield");
+
+            int Rwos = -1;
+            int Lwos = -1;
+            int rhand = -1;
+            int lhand = -1;
+            int.TryParse(righthand, out Rwos);
+            int.TryParse(lefthand, out Lwos);
+            if (Rwos != -1)
+            {
+                if (Rwos >= 2000)
+                {
+                    rhand = full.FindIndex(x => x.Name == "R_Shield");
+                }
+                else
+                {
+                    rhand = full.FindIndex(x => x.Name == "R_Weapon");
+                }
+            }
+            if (Lwos != -1)
+            {
+                if (Lwos >= 2000)
+                {
+                    lhand = full.FindIndex(x => x.Name == "L_Shield");
+                }
+                else
+                {
+                    lhand = full.FindIndex(x => x.Name == "L_Weapon");
+                }
+
+            }
+
+            Matrix4x4[] boneTrans = new Matrix4x4[full.Count];
+            for (int i = 0; i < full.Count; i++)
+            {
+                short pIndex = full[i].ParentIndex;
+                Matrix4x4 translation = Matrix4x4.Identity;
+                //translation.M11 *= -1;
+                if (pIndex != -1)
+                {
+                    translation = boneTrans[pIndex];
+                }
+                boneTrans[i] = full[i].ComputeLocalTransform() * translation;
+            }
+            transforms.Add(boneTrans[lhand]);
+            transforms.Add(boneTrans[rhand]);
+
             mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
+            if (File.Exists(erdir + "\\parts\\wp_a_" + righthand + "_1.partsbnd"))
+            {
+                //mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + "_1.partsbnd"));
+            }
+            if (File.Exists(erdir + "\\parts\\wp_a_" + lefthand + "_1.partsbnd"))
+            {
+                //mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + "_1.partsbnd"));
+            }
+            
             merge.Clear();
             for (int i = 0; i < mergeBND.Count; i++)
             {
                 merge.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
                 model.Add(FLVER2.Read(mergeBND[i].Files.Where(j => Path.GetExtension(j.Name) == ".flver").ToList()[0].Bytes));
+                weights.Add(true);
             }
+
+            if (textures)
+            {
+                
+            }
+
 
             for (int i = 0; i < merge.Count; i++)
             {
@@ -849,6 +954,7 @@ namespace FLVERtoASCII
                             merge[i].Bones[j].ParentIndex = (short)rhand;
                             merge[i].Bones[j].Translation = full[rhand].Translation;
                             full.Add(merge[i].Bones[j]);
+                            
                         }
                     }
                     else //left
@@ -862,18 +968,19 @@ namespace FLVERtoASCII
                     }
                     if (full.Any(x => x.Name == merge[i].Bones[j].Name))
                     {
-                        for (int k = 0; k < merge[i].Bones.Count; k++)
+                        /*for (int k = 0; k < merge[i].Bones.Count; k++)
                         {
                             if (merge[i].Bones[k].ParentIndex == j)
                             {
+                                int original = merge[i].Bones[k].ParentIndex;
                                 merge[i].Bones[k].ParentIndex = (short)full.FindIndex(x => x.Name == merge[i].Bones[j].Name);
                                 if (full.Any(x => x.Name == merge[i].Bones[k].Name))
                                 {
                                     int minus = full.FindIndex(x => x.Name == merge[i].Bones[k].Name && x.ParentIndex == -1);
                                     if (minus > -1)
                                     {
-                                        int another = full.FindIndex(x => x.Name == merge[i].Bones[merge[i].Bones[k].ParentIndex].Name);
-                                        while (full[another].ParentIndex < 0)
+                                        int another = full.FindIndex(x => x.Name == merge[i].Bones[original].Name);
+                                        while (another < full.Count && another > 0 && full[another].ParentIndex < 0)
                                         {
                                             int bone = merge[i].Bones.FindIndex(x => x.Name == full[another].Name);
                                             another = full.FindIndex(x => x.Name == merge[i].Bones[bone].Name);
@@ -885,14 +992,15 @@ namespace FLVERtoASCII
                                 else full.Add(merge[i].Bones[k]);
 
                             }
-                        }
+                        }*/
+                        assembleMasterRig(full, merge[i], j);
                     }
                 }
             }
 
             ;
 
-            WriteFLVERtoASCIIInOneCustomBones(erdir, armor +"_"+lefthand+"_"+righthand+"_"+beards+"_"+"_"+hairs+"_"+eyebrows, full,true, true);
+            WriteFLVERtoASCIIInOneCustomBones(erdir, armor +"_"+lefthand+"_"+righthand+"_"+beards+"_"+"_"+hairs+"_"+eyebrows, full, transforms, null, weights, true, true);
 
             merge.Clear();
             full.Clear();
@@ -1248,7 +1356,7 @@ namespace FLVERtoASCII
             BND4 menu;
             string lang = decideLang(language);
             menu = BND4.Read(erdir + $"//msg//{lang}//menu.msgbnd.dcx");
-            return fmgOut(menu, erdir, "menu",lang);
+            return fmgOut(menu, erdir, "menu", lang);
             
         }
         public List<string> msgItem(string erdir, LANG language)
