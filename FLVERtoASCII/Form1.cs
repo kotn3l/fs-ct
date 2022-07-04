@@ -439,11 +439,12 @@ namespace FLVERtoASCII
             int ri = righthand.SelectedIndex;
             int ei = eyebrowparts.SelectedIndex;
             int hi = hairparts.SelectedIndex;
+            bool tex = cb_Tex.Checked;
             //await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
             //beards[bi], eyebrows[ei], hairs[hi]));
             //c.Dispose();
             new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
-                beards[bi], eyebrows[ei], hairs[hi]);
+                beards[bi], eyebrows[ei], hairs[hi], tex);
             GC.Collect();
         }
 

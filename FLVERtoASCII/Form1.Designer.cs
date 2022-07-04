@@ -38,7 +38,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.browseTex = new System.Windows.Forms.Button();
             this.root = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.cb_Tex = new System.Windows.Forms.CheckBox();
             this.parts_list = new System.Windows.Forms.ListBox();
             this.Select_ER_workingDir = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -164,17 +164,17 @@
             this.root.Text = "Add Root Bone?";
             this.root.UseVisualStyleBackColor = true;
             // 
-            // checkBox1
+            // cb_Tex
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Checked = true;
-            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(711, 14);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(109, 17);
-            this.checkBox1.TabIndex = 11;
-            this.checkBox1.Text = "Extract Textures?";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.cb_Tex.AutoSize = true;
+            this.cb_Tex.Checked = true;
+            this.cb_Tex.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_Tex.Location = new System.Drawing.Point(711, 14);
+            this.cb_Tex.Name = "cb_Tex";
+            this.cb_Tex.Size = new System.Drawing.Size(109, 17);
+            this.cb_Tex.TabIndex = 11;
+            this.cb_Tex.Text = "Extract Textures?";
+            this.cb_Tex.UseVisualStyleBackColor = true;
             // 
             // parts_list
             // 
@@ -352,7 +352,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.Select_ER_workingDir);
             this.Controls.Add(this.parts_list);
-            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.cb_Tex);
             this.Controls.Add(this.root);
             this.Controls.Add(this.browseTex);
             this.Controls.Add(this.label1);
@@ -382,7 +382,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button browseTex;
         private System.Windows.Forms.CheckBox root;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox cb_Tex;
         private System.Windows.Forms.ListBox parts_list;
         private System.Windows.Forms.Button Select_ER_workingDir;
         private System.Windows.Forms.Label label2;
