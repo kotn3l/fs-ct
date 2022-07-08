@@ -52,6 +52,81 @@ namespace FLVERtoASCII
             //ascii = new List<string>();
         }
 
+        public void switchPlatform(PLATFORM sourcePlatform, PLATFORM destinationPlatform, string dcxDirToSwitchPlatformOn)
+        {
+            if (sourcePlatform == destinationPlatform)
+            {
+                return;
+            }
+            string outPath = Path.Combine(dcxDirToSwitchPlatformOn, "..\\erout");
+            string[] dcxT = Directory.GetFiles(dcxDirToSwitchPlatformOn, "*.dcx", SearchOption.AllDirectories);
+            string[] bhdT = Directory.GetFiles(dcxDirToSwitchPlatformOn, "*.tpfbhd", SearchOption.AllDirectories);
+            List<string> dcx = new List<string>(dcxT);
+            List<string> tpf = new List<string>();
+            List<string> bhd = new List<string>(bhdT);
+            for (int i = 0; i < dcx.Count; i++)
+            {
+                if (Regex.Match(dcx[i], @"\..*").Value == ".tpf.dcx")
+                {
+                    tpf.Add(String.Copy(dcx[i]));
+                    dcx.RemoveAt(i);
+                    i = 0;
+                }
+            }
+            List<BND4> archives = new List<BND4>();
+            List<TPF> textures = new List<TPF>();
+
+
+            string[] Platform_ToString = new string[] { "INTERROOT_win64", "INTERROOT_ps4" };
+            //for (int i = 0; i < dcx.Length; i++)
+            foreach (var item in dcx)
+            {
+                archives.Add(BND4.Read(item));
+                for (int j = 0; j < archives.Last().Files.Count; j++)
+                {
+                    archives.Last().Files[j].Name = Regex.Replace(archives.Last().Files[j].Name, $"{Platform_ToString[(int)sourcePlatform]}", $"{Platform_ToString[(int)destinationPlatform]}");
+                }
+                string s = item.Remove(0, dcxDirToSwitchPlatformOn.Length);
+                string file = Path.GetFileName(s);
+                string combined = outPath + s;
+                string dir = combined.Substring(0, combined.Length - file.Length);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                threads.Add(new Thread(() => archives.Last().Write(combined)));
+                threads.Last().Start();
+            }
+
+            foreach (var item in tpf)
+            {
+                textures.Add(TPF.Read(item));
+
+                foreach (var tex in textures.Last().Textures)
+                {
+                     tex.Bytes = tex.Headerize();
+                }
+
+                textures.Last().Platform = TPF.TPFPlatform.PC;
+                //textures.Last().Textures[0].
+                string s = item.Remove(0, dcxDirToSwitchPlatformOn.Length);
+                string file = Path.GetFileName(s);
+                string combined = outPath + s;
+                string dir = combined.Substring(0, combined.Length - file.Length);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                threads.Add(new Thread(() => textures.Last().Write(combined)));
+                threads.Last().Start();
+            }
+
+            while (threads.Any(x => x.IsAlive))
+            {
+
+            }
+        }
+
         public void WriteFLVERtoASCII(string outPath, string fileName, bool bones = false, bool addRoot = false, int index = 0)
         {
             List<string> ascii = new List<string>();
@@ -639,12 +714,18 @@ namespace FLVERtoASCII
             string[] tomb = Directory.GetFiles(inPath, "*.chrbnd.dcx");
             string[] tombP = Directory.GetFiles(inPath, "*.partsbnd");
             string[] texs = Directory.GetFiles(inPath, "*.texbnd.dcx");
+            string[] flvers = Directory.GetFiles(inPath, "*.flver");
             List<string> filenames = new List<string>();
             List<string> filenamesP = new List<string>();
             List<string> filenamesTex = new List<string>();
             List<BND4> chrbnds = new List<BND4>();
             //List<BND4> partbnds = new List<BND4>();
             List<BND4> texbnds = new List<BND4>();
+            for (int i = 0; i < flvers.Length; i++)
+            {
+                Model.Add(FLVER2.Read(flvers[i]));
+                filenames.Add(Path.GetFileNameWithoutExtension(flvers[i]));
+            }
             for (int i = 0; i < tombP.Length; i++)
             {
                 BND4 partbnd = BND4.Read(tombP[i]);
@@ -707,6 +788,7 @@ namespace FLVERtoASCII
             {
                 WriteFLVERtoASCII(outPath, filenames[i], true, true, i);
             }
+            
         }
 
         public void texture(TPF text, string outPath)
@@ -986,6 +1068,7 @@ namespace FLVERtoASCII
 
             BND4 matbnd;
             matbnd = BND4.Read(erdir + "//material//allmaterial.matbinbnd");
+            
             string matPathFirst = "";
             List<string> geoms = new List<string>();
 

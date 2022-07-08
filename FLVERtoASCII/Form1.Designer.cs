@@ -56,6 +56,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.platform = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // flverPath
@@ -330,11 +331,22 @@
             this.label7.TabIndex = 30;
             this.label7.Text = "Eyebrows";
             // 
+            // platform
+            // 
+            this.platform.Location = new System.Drawing.Point(518, 146);
+            this.platform.Name = "platform";
+            this.platform.Size = new System.Drawing.Size(75, 23);
+            this.platform.TabIndex = 31;
+            this.platform.Text = "button1";
+            this.platform.UseVisualStyleBackColor = true;
+            this.platform.Click += new System.EventHandler(this.platform_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(828, 752);
+            this.Controls.Add(this.platform);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -400,6 +412,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button platform;
     }
 }
 

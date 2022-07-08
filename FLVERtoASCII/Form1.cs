@@ -25,10 +25,19 @@ namespace FLVERtoASCII
         JPNJP = 0,
         ENGUS = 1
     }
+
+    public enum PLATFORM
+    {
+        INTERROOT_win64 = 0,
+        INTERROOT_ps4 = 1
+    }
+
     public partial class Form1 : Form
     {
-        string[] Games_ToString = new string[] { "Elden Ring", "Sekiro", "Bloodborne", "Dark Souls 1/3" };
-        string[] Lang_ToString = new string[] { "English", "Japanese" };
+        public static string[] Games_ToString = new string[] { "Elden Ring", "Sekiro", "Bloodborne", "Dark Souls 1/3" };
+        public static string[] Lang_ToString = new string[] { "English", "Japanese" };
+        public static string[] Platform_ToString = new string[] { "INTERROOT_win64", "INTERROOT_ps4" };
+
         private string ER_working_dir = "";
         private List<string> armorsets = new List<string>();
         private List<string> weapons = new List<string>();
@@ -267,7 +276,7 @@ namespace FLVERtoASCII
             }
         }
 
-        private void merge_Click(object sender, EventArgs e)
+        private async void merge_Click(object sender, EventArgs e)
         {
             //MessageBox.Show("Select a folder containing all armor pieces you want to merge -- be sure to have the flver files as well as the Bloodborne tool converted ascii-s in that one folder");
             using (var fbd = new FolderBrowserDialog())
@@ -276,8 +285,8 @@ namespace FLVERtoASCII
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    Conversion c = new Conversion();
-                    c.chrbndFolder(fbd.SelectedPath, fbd.SelectedPath + "//out");
+                    //Conversion c = new Conversion();
+                    await Task.Run(() => new Conversion().chrbndFolder(fbd.SelectedPath, fbd.SelectedPath + "//out"));
                     //c.Merge(fbd.SelectedPath);
                 }
             }
@@ -440,11 +449,11 @@ namespace FLVERtoASCII
             int ei = eyebrowparts.SelectedIndex;
             int hi = hairparts.SelectedIndex;
             bool tex = cb_Tex.Checked;
-            //await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
-            //beards[bi], eyebrows[ei], hairs[hi]));
+            await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
+                beards[bi], eyebrows[ei], hairs[hi], tex));
             //c.Dispose();
-            new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
-                beards[bi], eyebrows[ei], hairs[hi], tex);
+            /*new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
+                beards[bi], eyebrows[ei], hairs[hi], tex);*/
             GC.Collect();
         }
 
@@ -517,6 +526,11 @@ namespace FLVERtoASCII
                 form.Default.eyebrowIndex = eyebrowparts.SelectedIndex;
                 form.Default.Save();
             }
+        }
+
+        private void platform_Click(object sender, EventArgs e)
+        {
+            new Conversion().switchPlatform(PLATFORM.INTERROOT_ps4, PLATFORM.INTERROOT_win64, "F:\\downloads\\program stuff\\Elden Ring");
         }
     }
 }
