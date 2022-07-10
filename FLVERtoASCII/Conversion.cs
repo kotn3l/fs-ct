@@ -58,7 +58,11 @@ namespace FLVERtoASCII
             {
                 return;
             }
-            string outPath = Path.Combine(dcxDirToSwitchPlatformOn, "..\\erout");
+            string outPath = dcxDirToSwitchPlatformOn + "\\out";
+            if (!Directory.Exists(outPath))
+            {
+                Directory.CreateDirectory(outPath);
+            }
             string[] dcxT = Directory.GetFiles(dcxDirToSwitchPlatformOn, "*.dcx", SearchOption.AllDirectories);
             string[] bhdT = Directory.GetFiles(dcxDirToSwitchPlatformOn, "*.tpfbhd", SearchOption.AllDirectories);
             List<string> dcx = new List<string>(dcxT);

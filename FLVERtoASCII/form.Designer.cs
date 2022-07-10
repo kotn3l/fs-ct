@@ -106,5 +106,17 @@ namespace FLVERtoASCII {
                 this["eyebrowIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dcxDir {
+            get {
+                return ((string)(this["dcxDir"]));
+            }
+            set {
+                this["dcxDir"] = value;
+            }
+        }
     }
 }

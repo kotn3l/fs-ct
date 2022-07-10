@@ -186,6 +186,9 @@ namespace FLVERtoASCII
             mapBox.SelectedIndex = 0;
             mapBox.Enabled = false;
             cb_GameList.DataSource = Games_ToString;
+            cb_sourcePlatf.DataSource = new List<string>(Platform_ToString);
+            cb_sourcePlatf.SelectedIndex = 1;
+            cb_destPlatf.DataSource = new List<string>(Platform_ToString);
             loadSettings();
             //bones.Checked = false;
             //bones.Enabled = false;
@@ -195,8 +198,14 @@ namespace FLVERtoASCII
             if (form.Default.default_er_dir != "" && Directory.Exists(form.Default.default_er_dir))
             {
                 ER_working_dir = form.Default.default_er_dir;
+                tb_GameDir.Text = form.Default.default_er_dir;
                 loadDir();
-            }
+            } else tb_GameDir.Text = "Saved game directory from config doesnt exist!!";
+
+            if (form.Default.dcxDir != "" && Directory.Exists(form.Default.dcxDir))
+            {
+                tb_dcxDir.Text = form.Default.dcxDir;
+            } else tb_dcxDir.Text = "Saved game directory from config doesnt exist!!";
             parts_list.SelectedIndex = form.Default.armorIndex;
             lefthand.SelectedIndex = form.Default.leftWPIndex;
             righthand.SelectedIndex = form.Default.rightWPIndex;
@@ -528,9 +537,25 @@ namespace FLVERtoASCII
             }
         }
 
-        private void platform_Click(object sender, EventArgs e)
+        private async void platform_Click(object sender, EventArgs e)
         {
-            new Conversion().switchPlatform(PLATFORM.INTERROOT_ps4, PLATFORM.INTERROOT_win64, "F:\\downloads\\program stuff\\Elden Ring");
+            string dcxPath = form.Default.dcxDir;
+            if (dcxPath == "")
+            {
+                using (var fbd = new FolderBrowserDialog())
+                {
+                    DialogResult result = fbd.ShowDialog();
+
+                    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    {
+                        dcxPath = fbd.SelectedPath;
+                        form.Default.dcxDir = dcxPath;
+                        form.Default.Save();
+                    }
+                }
+            }
+            await Task.Run(() => new Conversion().switchPlatform(PLATFORM.INTERROOT_ps4, PLATFORM.INTERROOT_win64, dcxPath));
         }
+
     }
 }
