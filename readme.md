@@ -19,7 +19,8 @@ New Multithreaded option, performance tests were run on 1600X (6c/12t):
 |**AVERAGE**          ||| 57.2% |
 
 ## PLAYER CHARACTER MERGING AND CONVERSION
-WIP
+Now it can merge player model and armors/weapons, with a fully working skeleton.
+![Player model merged skeleton](/img/bloodywolf_skeleton.png?raw=true "Skeleton")
 
 # REQUIREMENTS
 [SoulsFormats](https://github.com/JKAnderson/SoulsFormats) (er branch), oo2core_6_win64.dll

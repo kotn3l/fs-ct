@@ -245,7 +245,7 @@
             this.mapBox.FormattingEnabled = true;
             this.mapBox.Location = new System.Drawing.Point(3, 3);
             this.mapBox.Name = "mapBox";
-            this.mapBox.Size = new System.Drawing.Size(345, 472);
+            this.mapBox.Size = new System.Drawing.Size(345, 511);
             this.mapBox.TabIndex = 17;
             // 
             // cb_GameList
@@ -428,7 +428,7 @@
             this.mapExt.Controls.Add(this.mapBox);
             this.mapExt.Location = new System.Drawing.Point(4, 22);
             this.mapExt.Name = "mapExt";
-            this.mapExt.Size = new System.Drawing.Size(652, 483);
+            this.mapExt.Size = new System.Drawing.Size(672, 518);
             this.mapExt.TabIndex = 2;
             this.mapExt.Text = "Map";
             this.mapExt.UseVisualStyleBackColor = true;
