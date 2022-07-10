@@ -130,7 +130,7 @@ namespace FLVERtoASCII
 
             }
         }
-        private static bool GetCharsInRange(string text, int min, int max)
+        private static bool HasCharsInRange(string text, int min, int max)
         {
             return text.Any(e => e >= min && e <= max);
         }
@@ -563,7 +563,7 @@ namespace FLVERtoASCII
                 for (int i = 0; i < cbones.Count; i++) //Bone names, parents, xyz
                 {
                     //ascii.Add(countIndex[i] == 0 ? Model[index].Bones[i].Name : Model[index].Bones[i].Name + countIndex[i]);
-                    if (GetCharsInRange(cbones[i].Name, 0x30A0, 0x30FF) || GetCharsInRange(cbones[i].Name, 0x4E00, 0x9FFF))
+                    if (HasCharsInRange(cbones[i].Name, 0x30A0, 0x30FF) || HasCharsInRange(cbones[i].Name, 0x4E00, 0x9FFF))
                     {
                         ascii.Add(cbones[i].Name + i);
                     } else ascii.Add(cbones[i].Name);
