@@ -12,6 +12,8 @@ Select a map from the static list, and then convert that map to ASCII. Also supp
 
 New Multithreaded option, performance tests were run on 1600X (6c/12t):
 
+<center>
+
 |Test ran on maps                |SingleThreaded       |MultiThreaded| MT faster by %
 |----------------|-------------------------------|-----------------------------|-|
 |**m10_01_00_00**|**4**m 28s 163ms            |3m 19s 573ms            | 34.2% |
@@ -19,6 +21,8 @@ New Multithreaded option, performance tests were run on 1600X (6c/12t):
 |**m11_10_00_00**          |2m 14s 910ms|1m 9s 530ms| 94% |
 |**m60_10_09_02**          |7m 38s 328ms|4m 27s 710ms| 71.2% |
 |**AVERAGE**          ||| 57.2% |
+
+</center>
 
 ## PLAYER CHARACTER MERGING AND CONVERSION
 Now it can merge player model and armors/weapons, with a fully working skeleton.
