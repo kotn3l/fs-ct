@@ -859,7 +859,7 @@ namespace FLVERtoASCII
                 }
             }
         }
-        public void armorset(string erdir, string armor, string lefthand, string righthand, string beards, string eyebrows, string hairs, bool textures, string male = "m")
+        public void armorset(string erdir, string armor, string lefthand, string righthand, string beards, string eyebrows, string hairs, bool textures, string male = "m", bool addBodyUnder = false)
         {
             //FG101-152: faces
             //FG15XX: eyes
@@ -880,7 +880,7 @@ namespace FLVERtoASCII
             string outName = armor + "_" + lefthand + "_" + righthand + "_" + beards + "_" + "_" + hairs + "_" + eyebrows;
 
             mergeBND.Add(BND4.Read(erdir + $"\\chr\\c0000.chrbnd"));
-            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0100.partsbnd"));
+            //mergeBND.Add(BND4.Read(erdir + $"\\parts\\fc_{male}_0100.partsbnd"));
 
             string[] partsPrefix = new string[] { "am_", "bd_", "hd_", "lg_" };
             foreach (string prefix in partsPrefix)
@@ -890,14 +890,16 @@ namespace FLVERtoASCII
                     mergeBND.Add(BND4.Read(erdir + $"\\parts\\{prefix}m_{armor}.partsbnd"));
                 }
             }
+            if (addBodyUnder)
+            {
+                mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
+                mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_1500.partsbnd"));
+                mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_0152.partsbnd"));
 
-            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_1500.partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_0152.partsbnd"));
-
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + beards + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + eyebrows + ".partsbnd"));
-            mergeBND.Add(BND4.Read(erdir + "\\parts\\hr_a_" + hairs + ".partsbnd"));
+                mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + beards + ".partsbnd"));
+                mergeBND.Add(BND4.Read(erdir + "\\parts\\fg_a_" + eyebrows + ".partsbnd"));
+                mergeBND.Add(BND4.Read(erdir + "\\parts\\hr_a_" + hairs + ".partsbnd"));
+            }
 
             List<Matrix4x4> transforms = new List<Matrix4x4>();
             Dictionary<int, List<MATBIN>> materials = new Dictionary<int, List<MATBIN>>();
@@ -974,20 +976,8 @@ namespace FLVERtoASCII
 
             }
 
-            Matrix4x4[] boneTrans = new Matrix4x4[full.Count];
-            for (int i = 0; i < full.Count; i++)
-            {
-                short pIndex = full[i].ParentIndex;
-                Matrix4x4 translation = Matrix4x4.Identity;
-                //translation.M11 *= -1;
-                if (pIndex != -1)
-                {
-                    translation = boneTrans[pIndex];
-                }
-                boneTrans[i] = full[i].ComputeLocalTransform() * translation;
-            }
-            transforms.Add(boneTrans[lhand]);
-            transforms.Add(boneTrans[rhand]);
+            threads.Add(new Thread(() => boneTrans(full,transforms,lhand,rhand)));
+            threads.Last().Start();
 
             mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + righthand + ".partsbnd"));
             mergeBND.Add(BND4.Read(erdir + "\\parts\\wp_a_" + lefthand + ".partsbnd"));
@@ -1048,6 +1038,10 @@ namespace FLVERtoASCII
                     }
                 }
             }
+            while (threads.Any(x => x.IsAlive))
+            {
+
+            }
             WriteFLVERtoASCIIInOneCustomBones(erdir, outName, full, transforms, null, weights, true, true);
             while (texThreads.Any(x => x.IsAlive))
             {
@@ -1058,6 +1052,24 @@ namespace FLVERtoASCII
             full.Clear();
             Dispose();
             return;
+        }
+
+        private void boneTrans(List<FLVER.Bone> full, List<Matrix4x4> transforms, int lhand, int rhand)
+        {
+            Matrix4x4[] boneTrans = new Matrix4x4[full.Count];
+            for (int i = 0; i < full.Count; i++)
+            {
+                short pIndex = full[i].ParentIndex;
+                Matrix4x4 translation = Matrix4x4.Identity;
+                //translation.M11 *= -1;
+                if (pIndex != -1)
+                {
+                    translation = boneTrans[pIndex];
+                }
+                boneTrans[i] = full[i].ComputeLocalTransform() * translation;
+            }
+            transforms.Add(boneTrans[lhand]);
+            transforms.Add(boneTrans[rhand]);
         }
 
         private Dictionary<string, FLVER2> geometry;
