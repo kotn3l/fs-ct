@@ -1,5 +1,6 @@
 # FS-CT
-This is a very poorly written converter tool for most generic FromSoftware formats, please absolutely don't use this unless you want to suffer (jk using it isn't so bad, but the code is pretty ugly). I will reformat and refactor someday so it strictly follows all coding conventions. For now, it decompresses BNDs and converts FLVERs (geometry), TPFs (textures), MSGs (texts), MSBs (map placements).
+This is a very poorly written converter tool for most generic FromSoftware formats, please absolutely don't use this unless you want to suffer (jk using it isn't so bad, but the code is pretty ugly). I will reformat and refactor someday so it strictly follows all coding conventions, but it is what it is for now. I only started making it for fun and as a hobby.
+It decompresses and decrypts BNDs and converts FLVERs (geometry), TPFs (textures), MSGs (texts), MSBs (map placements), and can also kinda change the platform of a FS file.
 
 ## Model conversion
 Whether it be chrbnd, or partbnd, or anything that contains an FLVER, it will convert it. Will also convert textures from the BND container. **Can also BATCH convert an entire folder of BNDs.**
