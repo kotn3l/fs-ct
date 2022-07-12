@@ -30,14 +30,12 @@ namespace FLVERtoASCII
         }
         public Conversion(FLVER2 model, bool IsPlayer = false)
         {
-            this.IsPlayer = IsPlayer;
             Model = new List<FLVER2>();
             Model.Add(model);
             //ascii = new List<string>();
         }
         public Conversion(List<FLVER2> models, bool IsPlayer = false)
         {
-            this.IsPlayer = IsPlayer;
             Model = new List<FLVER2>(models);
             //Model.Add(model);
             //ascii = new List<string>();
