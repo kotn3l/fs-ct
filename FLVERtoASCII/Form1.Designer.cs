@@ -63,10 +63,12 @@
             this.playerModel = new System.Windows.Forms.TabPage();
             this.mapExt = new System.Windows.Forms.TabPage();
             this.platf = new System.Windows.Forms.TabPage();
-            this.tb_dcxDir = new System.Windows.Forms.TextBox();
-            this.cb_sourcePlatf = new System.Windows.Forms.ComboBox();
-            this.cb_destPlatf = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.cb_destPlatf = new System.Windows.Forms.ComboBox();
+            this.cb_sourcePlatf = new System.Windows.Forms.ComboBox();
+            this.tb_dcxDir = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.mapInt = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.basicFLVER.SuspendLayout();
             this.playerModel.SuspendLayout();
@@ -247,6 +249,7 @@
             this.mapBox.Name = "mapBox";
             this.mapBox.Size = new System.Drawing.Size(345, 511);
             this.mapBox.TabIndex = 17;
+            this.mapBox.SelectedIndexChanged += new System.EventHandler(this.mapBox_SelectedIndexChanged);
             // 
             // cb_GameList
             // 
@@ -394,7 +397,7 @@
             this.basicFLVER.Location = new System.Drawing.Point(4, 22);
             this.basicFLVER.Name = "basicFLVER";
             this.basicFLVER.Padding = new System.Windows.Forms.Padding(3);
-            this.basicFLVER.Size = new System.Drawing.Size(652, 483);
+            this.basicFLVER.Size = new System.Drawing.Size(672, 518);
             this.basicFLVER.TabIndex = 0;
             this.basicFLVER.Text = "basic FLVER";
             this.basicFLVER.UseVisualStyleBackColor = true;
@@ -417,13 +420,15 @@
             this.playerModel.Location = new System.Drawing.Point(4, 22);
             this.playerModel.Name = "playerModel";
             this.playerModel.Padding = new System.Windows.Forms.Padding(3);
-            this.playerModel.Size = new System.Drawing.Size(652, 483);
+            this.playerModel.Size = new System.Drawing.Size(672, 518);
             this.playerModel.TabIndex = 1;
             this.playerModel.Text = "Player Model";
             this.playerModel.UseVisualStyleBackColor = true;
             // 
             // mapExt
             // 
+            this.mapExt.Controls.Add(this.mapInt);
+            this.mapExt.Controls.Add(this.label9);
             this.mapExt.Controls.Add(this.map);
             this.mapExt.Controls.Add(this.mapBox);
             this.mapExt.Location = new System.Drawing.Point(4, 22);
@@ -447,22 +452,14 @@
             this.platf.Text = "Platform";
             this.platf.UseVisualStyleBackColor = true;
             // 
-            // tb_dcxDir
+            // label8
             // 
-            this.tb_dcxDir.Enabled = false;
-            this.tb_dcxDir.Location = new System.Drawing.Point(0, 55);
-            this.tb_dcxDir.Name = "tb_dcxDir";
-            this.tb_dcxDir.Size = new System.Drawing.Size(416, 20);
-            this.tb_dcxDir.TabIndex = 32;
-            // 
-            // cb_sourcePlatf
-            // 
-            this.cb_sourcePlatf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cb_sourcePlatf.FormattingEnabled = true;
-            this.cb_sourcePlatf.Location = new System.Drawing.Point(3, 19);
-            this.cb_sourcePlatf.Name = "cb_sourcePlatf";
-            this.cb_sourcePlatf.Size = new System.Drawing.Size(121, 21);
-            this.cb_sourcePlatf.TabIndex = 33;
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(130, 22);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(16, 13);
+            this.label8.TabIndex = 35;
+            this.label8.Text = "->";
             // 
             // cb_destPlatf
             // 
@@ -473,14 +470,39 @@
             this.cb_destPlatf.Size = new System.Drawing.Size(121, 21);
             this.cb_destPlatf.TabIndex = 34;
             // 
-            // label8
+            // cb_sourcePlatf
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(130, 22);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(16, 13);
-            this.label8.TabIndex = 35;
-            this.label8.Text = "->";
+            this.cb_sourcePlatf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_sourcePlatf.FormattingEnabled = true;
+            this.cb_sourcePlatf.Location = new System.Drawing.Point(3, 19);
+            this.cb_sourcePlatf.Name = "cb_sourcePlatf";
+            this.cb_sourcePlatf.Size = new System.Drawing.Size(121, 21);
+            this.cb_sourcePlatf.TabIndex = 33;
+            // 
+            // tb_dcxDir
+            // 
+            this.tb_dcxDir.Enabled = false;
+            this.tb_dcxDir.Location = new System.Drawing.Point(0, 55);
+            this.tb_dcxDir.Name = "tb_dcxDir";
+            this.tb_dcxDir.Size = new System.Drawing.Size(416, 20);
+            this.tb_dcxDir.TabIndex = 32;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(351, 29);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(141, 13);
+            this.label9.TabIndex = 18;
+            this.label9.Text = "Selected map internal name:";
+            // 
+            // mapInt
+            // 
+            this.mapInt.AutoSize = true;
+            this.mapInt.Location = new System.Drawing.Point(355, 46);
+            this.mapInt.Name = "mapInt";
+            this.mapInt.Size = new System.Drawing.Size(0, 13);
+            this.mapInt.TabIndex = 19;
             // 
             // Form1
             // 
@@ -501,6 +523,7 @@
             this.playerModel.ResumeLayout(false);
             this.playerModel.PerformLayout();
             this.mapExt.ResumeLayout(false);
+            this.mapExt.PerformLayout();
             this.platf.ResumeLayout(false);
             this.platf.PerformLayout();
             this.ResumeLayout(false);
@@ -549,6 +572,8 @@
         private System.Windows.Forms.ComboBox cb_destPlatf;
         private System.Windows.Forms.ComboBox cb_sourcePlatf;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label mapInt;
+        private System.Windows.Forms.Label label9;
     }
 }
 

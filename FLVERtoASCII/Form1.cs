@@ -303,9 +303,9 @@ namespace FLVERtoASCII
 
         }
 
-        private void browseDCX_Click(object sender, EventArgs e) //texture
+        private async void browseDCX_Click(object sender, EventArgs e) //texture
         {
-            int size = -1;
+            /*int size = -1;
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
             openFileDialog1.Filter = "FromSoftware TPF|*.tpf";
             DialogResult result = openFileDialog1.ShowDialog();
@@ -317,6 +317,7 @@ namespace FLVERtoASCII
                 {
                     //FLVER2 test = FLVER2.Read(file);
                     TPF texture = TPF.Read(file);
+                    //string[] dcxT = Directory.GetFiles(dcxDirToSwitchPlatformOn, "*.dcx", SearchOption.AllDirectories);
                     Conversion c = new Conversion();
                     c.texture(texture, Path.GetDirectoryName(file));
                     //c.WriteFLVERtoASCII(asciiPath.Text, saveName, bones.Checked, root.Checked);
@@ -325,6 +326,21 @@ namespace FLVERtoASCII
                 {
                     //throw;
                     //MessageBox.Show("Something went wrong, try with a different flver");
+                }
+            }*/
+
+
+            using (var fbd = new FolderBrowserDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    string[] tpfs = Directory.GetFiles(fbd.SelectedPath, "*.tpf", SearchOption.AllDirectories);
+                    foreach (var item in tpfs)
+                    {
+                        await Task.Run(() => new Conversion().texture(TPF.Read(item), Path.GetDirectoryName(item)));
+                    }
                 }
             }
         }
@@ -557,5 +573,9 @@ namespace FLVERtoASCII
             await Task.Run(() => new Conversion().switchPlatform(PLATFORM.INTERROOT_ps4, PLATFORM.INTERROOT_win64, dcxPath));
         }
 
+        private void mapBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            mapInt.Text = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
+        }
     }
 }
