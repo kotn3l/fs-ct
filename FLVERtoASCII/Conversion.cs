@@ -16,7 +16,6 @@ namespace FLVERtoASCII
     class Conversion : IDisposable
     {
         //private List<string> ascii;
-        private bool IsPlayer;
         List<FLVER2> model;
 
         public List<Thread> threads = new List<Thread>();
@@ -29,7 +28,6 @@ namespace FLVERtoASCII
             get { return model; }
             set { model = value; }
         }
-
         public Conversion(FLVER2 model, bool IsPlayer = false)
         {
             this.IsPlayer = IsPlayer;
@@ -37,7 +35,6 @@ namespace FLVERtoASCII
             Model.Add(model);
             //ascii = new List<string>();
         }
-
         public Conversion(List<FLVER2> models, bool IsPlayer = false)
         {
             this.IsPlayer = IsPlayer;
@@ -45,7 +42,6 @@ namespace FLVERtoASCII
             //Model.Add(model);
             //ascii = new List<string>();
         }
-
         public Conversion()
         {
             Model = new List<FLVER2>();
@@ -718,7 +714,6 @@ namespace FLVERtoASCII
             ascii.Clear();
             
         }
-        
         public void chrbndFolder(string inPath, string outPath)
         {
             string[] tomb = Directory.GetFiles(inPath, "*.chrbnd.dcx");
@@ -800,7 +795,6 @@ namespace FLVERtoASCII
             }
             
         }
-
         public void texture(TPF text, string outPath)
         {
             for (int i = 0; i < text.Textures.Count; i++)
@@ -830,7 +824,6 @@ namespace FLVERtoASCII
             }
 
         }
-
         private void assembleMasterRig(List<FLVER.Bone> full, FLVER2 merge, int j)
         {
             for (int k = 0; k < merge.Bones.Count; k++) //iterate through our bones
@@ -1053,7 +1046,6 @@ namespace FLVERtoASCII
             Dispose();
             return;
         }
-
         private void boneTrans(List<FLVER.Bone> full, List<Matrix4x4> transforms, int lhand, int rhand)
         {
             Matrix4x4[] boneTrans = new Matrix4x4[full.Count];
@@ -1073,7 +1065,6 @@ namespace FLVERtoASCII
         }
 
         private Dictionary<string, FLVER2> geometry;
-
         public void map(Games game, string erdir, string map, string outFileName)
         {
             //lot of map object placement code from googleben's ERMapViewer!!! all credit goes to him!!!
@@ -1387,7 +1378,6 @@ namespace FLVERtoASCII
                 //transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
         }
-
         private string decideLang(LANG language)
         {
             string lang = "";
@@ -1485,17 +1475,14 @@ namespace FLVERtoASCII
         {
             return new Vector3(pos.X, pos.Z, pos.Y);
         }
-
         public static Vector3 VecToXna(System.Numerics.Vector3 v)
         {
             return new Vector3(v.X, v.Z, v.Y);
         }
-
         public static float ToRadians(double angle)
         {
             return (float)((Math.PI / 180) * angle);
         }
-
         public void decompress(string folderPath, string outPath, bool recursive = true)
         {
             /*List<BND4> files = new List<BND4>();
@@ -1536,15 +1523,6 @@ namespace FLVERtoASCII
                 Model.Clear();
             }*/
         }
-        private void writeBones()
-        {
-
-        }
-        private void writeSumsOne()
-        {
-
-        }
-
         public void Dispose()
         {
             model.Clear();
