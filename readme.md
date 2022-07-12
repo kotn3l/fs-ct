@@ -30,3 +30,6 @@ Now it can merge player model and armors/weapons, with a fully working skeleton.
 
 # REQUIREMENTS
 [SoulsFormats](https://github.com/JKAnderson/SoulsFormats) (er branch), oo2core_6_win64.dll
+
+# CREDITS
+[googleben's ERMapViewer](https://github.com/googleben/ERMapViewer) for partial map loading code

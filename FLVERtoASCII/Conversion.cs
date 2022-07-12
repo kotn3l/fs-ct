@@ -1073,8 +1073,10 @@ namespace FLVERtoASCII
         }
 
         private Dictionary<string, FLVER2> geometry;
+
         public void map(Games game, string erdir, string map, string outFileName)
         {
+            //lot of map object placement code from googleben's ERMapViewer!!! all credit goes to him!!!
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
