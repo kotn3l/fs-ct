@@ -1,5 +1,5 @@
 # FS-CT
-This is a very poorly written converter tool for most generic FromSoftware formats, please absolutely don't use this unless you want to suffer (jk using it isn't so bad, but the code is pretty ugly). I will reformat and refactor someday so it strictly follows all coding conventions, but it is what it is for now. I only started making it since I desperately needed 3D models from Elden Ring Network Test Ver. in Dec 2021, but there was no tool available. (Well there was a tool but at the time it didn't extract the UVs right)
+This is a very poorly written converter tool for most generic FromSoftware formats, please absolutely don't use this unless you want to suffer (jk using it isn't so bad, but the code is pretty ugly). I will reformat and refactor someday so it strictly follows all coding conventions, but it is what it is for now. I only started making it since I desperately needed 3D models from Elden Ring Network Test Ver. in Dec 2021, but there was no tool available. (Well there was a tool but at the time it didn't extract the UVs right) From there, it evolved into more than just simple "FLVER to ASCII" conversion, which was actually how I called it at the time.
 
 It decompresses and decrypts BNDs and converts FLVERs (geometry), TPFs (textures), MSGs (texts), MSBs (map placements), and can also kinda change the platform of a FS file.
 
