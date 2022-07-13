@@ -35,4 +35,5 @@ Now it can merge player model and armors/weapons, with a fully working skeleton.
 
 # CREDITS
 [googleben's ERMapViewer](https://github.com/googleben/ERMapViewer) for partial map loading code
+
 [SoulsFormats](https://github.com/JKAnderson/SoulsFormats)
