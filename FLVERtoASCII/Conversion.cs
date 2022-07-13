@@ -28,13 +28,13 @@ namespace FLVERtoASCII
             get { return model; }
             set { model = value; }
         }
-        public Conversion(FLVER2 model, bool IsPlayer = false)
+        public Conversion(FLVER2 model)
         {
             Model = new List<FLVER2>();
             Model.Add(model);
             //ascii = new List<string>();
         }
-        public Conversion(List<FLVER2> models, bool IsPlayer = false)
+        public Conversion(List<FLVER2> models)
         {
             Model = new List<FLVER2>(models);
             //Model.Add(model);
