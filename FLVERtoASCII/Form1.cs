@@ -474,8 +474,9 @@ namespace FLVERtoASCII
             int ei = eyebrowparts.SelectedIndex;
             int hi = hairparts.SelectedIndex;
             bool tex = cb_Tex.Checked;
+            bool body = cb_BodyUnder.Checked;
             await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
-                beards[bi], eyebrows[ei], hairs[hi], tex));
+                beards[bi], eyebrows[ei], hairs[hi], tex, "m", body));
             //c.Dispose();
             /*new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
                 beards[bi], eyebrows[ei], hairs[hi], tex);*/

@@ -62,13 +62,14 @@
             this.basicFLVER = new System.Windows.Forms.TabPage();
             this.playerModel = new System.Windows.Forms.TabPage();
             this.mapExt = new System.Windows.Forms.TabPage();
+            this.mapInt = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             this.platf = new System.Windows.Forms.TabPage();
             this.label8 = new System.Windows.Forms.Label();
             this.cb_destPlatf = new System.Windows.Forms.ComboBox();
             this.cb_sourcePlatf = new System.Windows.Forms.ComboBox();
             this.tb_dcxDir = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.mapInt = new System.Windows.Forms.Label();
+            this.cb_BodyUnder = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.basicFLVER.SuspendLayout();
             this.playerModel.SuspendLayout();
@@ -187,7 +188,7 @@
             this.cb_Tex.AutoSize = true;
             this.cb_Tex.Checked = true;
             this.cb_Tex.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_Tex.Location = new System.Drawing.Point(218, 95);
+            this.cb_Tex.Location = new System.Drawing.Point(370, 42);
             this.cb_Tex.Name = "cb_Tex";
             this.cb_Tex.Size = new System.Drawing.Size(109, 17);
             this.cb_Tex.TabIndex = 11;
@@ -388,7 +389,6 @@
             this.basicFLVER.Controls.Add(this.browseTex);
             this.basicFLVER.Controls.Add(this.flverPath);
             this.basicFLVER.Controls.Add(this.browse_Button);
-            this.basicFLVER.Controls.Add(this.cb_Tex);
             this.basicFLVER.Controls.Add(this.asciiPath);
             this.basicFLVER.Controls.Add(this.root);
             this.basicFLVER.Controls.Add(this.browseSave);
@@ -404,6 +404,7 @@
             // 
             // playerModel
             // 
+            this.playerModel.Controls.Add(this.cb_BodyUnder);
             this.playerModel.Controls.Add(this.label2);
             this.playerModel.Controls.Add(this.parts_list);
             this.playerModel.Controls.Add(this.lefthand);
@@ -437,6 +438,23 @@
             this.mapExt.TabIndex = 2;
             this.mapExt.Text = "Map";
             this.mapExt.UseVisualStyleBackColor = true;
+            // 
+            // mapInt
+            // 
+            this.mapInt.AutoSize = true;
+            this.mapInt.Location = new System.Drawing.Point(355, 46);
+            this.mapInt.Name = "mapInt";
+            this.mapInt.Size = new System.Drawing.Size(0, 13);
+            this.mapInt.TabIndex = 19;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(351, 29);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(141, 13);
+            this.label9.TabIndex = 18;
+            this.label9.Text = "Selected map internal name:";
             // 
             // platf
             // 
@@ -487,22 +505,15 @@
             this.tb_dcxDir.Size = new System.Drawing.Size(416, 20);
             this.tb_dcxDir.TabIndex = 32;
             // 
-            // label9
+            // cb_BodyUnder
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(351, 29);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(141, 13);
-            this.label9.TabIndex = 18;
-            this.label9.Text = "Selected map internal name:";
-            // 
-            // mapInt
-            // 
-            this.mapInt.AutoSize = true;
-            this.mapInt.Location = new System.Drawing.Point(355, 46);
-            this.mapInt.Name = "mapInt";
-            this.mapInt.Size = new System.Drawing.Size(0, 13);
-            this.mapInt.TabIndex = 19;
+            this.cb_BodyUnder.AutoSize = true;
+            this.cb_BodyUnder.Location = new System.Drawing.Point(262, 53);
+            this.cb_BodyUnder.Name = "cb_BodyUnder";
+            this.cb_BodyUnder.Size = new System.Drawing.Size(140, 17);
+            this.cb_BodyUnder.TabIndex = 34;
+            this.cb_BodyUnder.Text = "Add Body Under Armor?";
+            this.cb_BodyUnder.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -513,6 +524,7 @@
             this.Controls.Add(this.tb_GameDir);
             this.Controls.Add(this.cb_GameList);
             this.Controls.Add(this.Select_ER_workingDir);
+            this.Controls.Add(this.cb_Tex);
             this.MaximumSize = new System.Drawing.Size(720, 660);
             this.MinimumSize = new System.Drawing.Size(720, 660);
             this.Name = "Form1";
@@ -574,6 +586,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label mapInt;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.CheckBox cb_BodyUnder;
     }
 }
 
