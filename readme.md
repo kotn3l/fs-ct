@@ -26,7 +26,7 @@ New Multithreaded option, performance tests were run on 1600X (6c/12t):
 
 </center>
 
-## PLAYER CHARACTER MERGING AND CONVERSION
+## Player Character Merging
 Now it can merge player model and armors/weapons, with a fully working skeleton.
 ![Player model merged skeleton](/img/bloodywolf_m.png?raw=true "Skeleton, and render")
 
