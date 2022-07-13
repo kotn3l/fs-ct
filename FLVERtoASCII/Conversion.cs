@@ -881,6 +881,7 @@ namespace FLVERtoASCII
                     mergeBND.Add(BND4.Read(erdir + $"\\parts\\{prefix}m_{armor}.partsbnd"));
                 }
             }
+
             if (addBodyUnder)
             {
                 mergeBND.Add(BND4.Read(erdir + $"\\parts\\fg_a_7001.partsbnd"));
@@ -1044,7 +1045,7 @@ namespace FLVERtoASCII
             Dispose();
             return;
         }
-        private void boneTrans(List<FLVER.Bone> full, List<Matrix4x4> transforms, int lhand, int rhand)
+        private Matrix4x4[] boneTrans(List<FLVER.Bone> full, List<Matrix4x4> transforms, int lhand, int rhand)
         {
             Matrix4x4[] boneTrans = new Matrix4x4[full.Count];
             for (int i = 0; i < full.Count; i++)
@@ -1060,6 +1061,7 @@ namespace FLVERtoASCII
             }
             transforms.Add(boneTrans[lhand]);
             transforms.Add(boneTrans[rhand]);
+            return boneTrans;
         }
 
         private Dictionary<string, FLVER2> geometry;
