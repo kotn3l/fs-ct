@@ -159,9 +159,6 @@ namespace FLVERtoASCII
                         ascii.Add(Model[index].Bones[i].Name + i);
                     }
                     else ascii.Add(Model[index].Bones[i].Name);
-                    //boneNames.Add(Model[index].Bones[i].Name);
-                    //ascii.Add(countIndex[i] == 0 ? Model[index].Bones[i].Name : Model[index].Bones[i].Name + countIndex[i]);
-                    //ascii.Add(Model[index].Bones[i].Name);
                     short pIndex = Model[index].Bones[i].ParentIndex;
                     Matrix4x4 translation = Matrix4x4.Identity;
                     if (true)
@@ -174,7 +171,6 @@ namespace FLVERtoASCII
                     }
 
                     boneMatrices[i] = Model[index].Bones[i].ComputeLocalTransform() * translation;
-                    //Quaternion rot = Quaternion.CreateFromRotationMatrix(boneMatrices[i]);
                     ascii.Add((pIndex + plusBone).ToString());
                     ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
                               boneMatrices[i].M42.ToString("0.##########") + " " +
@@ -185,13 +181,7 @@ namespace FLVERtoASCII
             {
                 ascii.Add("0");
             }
-            uint VertSum = 0;
-            uint MeshSum = 0;
-            for (int i = 0; i < Model[index].Meshes.Count; i++) //overall meshes
-            {
-                MeshSum++;
-            }
-            ascii.Add(MeshSum.ToString());
+            ascii.Add(Model[index].Meshes.Count.ToString());
             for (int i = 0; i < Model[index].Meshes.Count; i++)
             {
                 texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);   
@@ -204,12 +194,6 @@ namespace FLVERtoASCII
 
                 }
                 texturestxt.Add(seperator);
-
-
-                for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //overall vertices in one mesh
-                {
-                    VertSum++;
-                }
 
                 int Tex = 0;
                 for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
@@ -239,16 +223,7 @@ namespace FLVERtoASCII
                         }
                     }
                 }
-                /*ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); //mesh name
-                ascii.Add(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
-                ascii.Add(Tex.ToString()); //tex count
-                for (int k = 0; k < Tex; k++)
-                {
-                    ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].MTD);
-                    ascii.Add("0");
-                }*/
-                ascii.Add(VertSum.ToString()); //mesh vertices count
-                VertSum = 0;
+                ascii.Add(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                 for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                 {
                     //vert pos
@@ -378,8 +353,6 @@ namespace FLVERtoASCII
                 ascii.Add("-1");
                 ascii.Add("0 0 0 0 0 0 1");
             }
-
-            //int prevBones = 0;
             for (int y = 0; y < Model.Count; y++)
             {
                 if (!transform.ContainsKey(Model[y].GetHashCode()))
@@ -392,7 +365,6 @@ namespace FLVERtoASCII
                     List<int> countIndex = new List<int>();
                     for (int i = 0; i < Model[y].Bones.Count; i++) //Bone names, parents, xyz
                     {
-                        //ascii.Add(countIndex[i] == 0 ? Model[index].Bones[i].Name : Model[index].Bones[i].Name + countIndex[i]);
                         ascii.Add(geometry.FirstOrDefault(x => x.Value == Model[y]).Key + Model[y].Bones[i].Name);
                         int pIndex = Model[y].Bones[i].ParentIndex;
                         Matrix4x4 translation = Matrix4x4.Identity;
@@ -404,7 +376,6 @@ namespace FLVERtoASCII
                         {
                             translation = boneMatrices[pIndex];
                         }
-                        //Quaternion rot = Quaternion.CreateFromRotationMatrix(boneMatrices[i]);
                         boneMatrices[i] = Model[y].Bones[i].ComputeLocalTransform() * translation * transform[Model[y].GetHashCode()][z];
 
                         if (pIndex != -1)
@@ -420,7 +391,6 @@ namespace FLVERtoASCII
                 }
             }
 
-
             ascii.Add(MeshSum.ToString());
             for (int y = 0; y < Model.Count; y++)
             {
@@ -428,27 +398,6 @@ namespace FLVERtoASCII
                 {
                     continue;
                 }
-                /*for (int i = 0; i < material[Model[y].GetHashCode()].Count; i++)
-                {
-                    for (int j = 0; j < Model[y].Meshes.Count; j++)
-                    {
-                        if (texturestxt.Contains(Model[y].Materials[Model[y].Meshes[j].MaterialIndex].Name))
-                        {
-                            continue;
-                        }
-                        if (Model[y].Materials[Model[y].Meshes[j].MaterialIndex].MTD == "")
-                        {
-                            continue;
-                        }
-                        texturestxt.Add(Model[y].Materials[Model[y].Meshes[j].MaterialIndex].Name);
-                        for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[j].MaterialIndex].Samplers.Count; l++)
-                        {
-                            texturestxt.Add(Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[j].MaterialIndex].Samplers[l].Path));
-                        }
-
-                    }
-                    texturestxt.Add(seperator);
-                }*/
                 for (int z = 0; z < transform[Model[y].GetHashCode()].Count; z++)
                 {
                     for (int i = 0; i < Model[y].Meshes.Count; i++)
@@ -585,7 +534,6 @@ namespace FLVERtoASCII
             int plusBone = 0;
             if (bones)
             {
-
                 if (addRoot)
                 {
                     plusBone = 1;
@@ -601,7 +549,6 @@ namespace FLVERtoASCII
                 var boneMatrices = new Matrix4x4[cbones.Count + plusBone];
                 for (int i = 0; i < cbones.Count; i++) //Bone names, parents, xyz
                 {
-                    //ascii.Add(countIndex[i] == 0 ? Model[index].Bones[i].Name : Model[index].Bones[i].Name + countIndex[i]);
                     if (HasCharsInRange(cbones[i].Name, 0x30A0, 0x30FF) || HasCharsInRange(cbones[i].Name, 0x4E00, 0x9FFF))
                     {
                         ascii.Add(cbones[i].Name + i);
@@ -617,13 +564,11 @@ namespace FLVERtoASCII
                         translation = boneMatrices[pIndex];
                     }
                     boneMatrices[i] = cbones[i].ComputeLocalTransform() * translation;
-                    //Quaternion rot = Quaternion.CreateFromRotationMatrix(boneMatrices[i]);
                     ascii.Add((pIndex + plusBone).ToString());
                     ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
                               boneMatrices[i].M42.ToString("0.##########") + " " +
                               boneMatrices[i].M43.ToString("0.##########"));
                 }
-                
             }
             else
             {
@@ -642,7 +587,6 @@ namespace FLVERtoASCII
             ascii.Add(MeshSum.ToString());
             for (int index = 0; index < Model.Count; index++)
             {
-                //uint VertSum = 0;
                 for (int i = 0; i < Model[index].Meshes.Count; i++)
                 {
                     texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);
@@ -657,18 +601,9 @@ namespace FLVERtoASCII
                     }
                     texturestxt.Add(seperator);
 
-                    /*for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //overall vertices in one mesh
-                    {
-                        VertSum++;
-                    }*/
-
                     int Tex = 0;
                     for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
                     {
-                        /*for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                        {
-                            Tex++;
-                        }*/
                         Tex += material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count;
                     }
                     if (Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name[0] == '#')
@@ -695,16 +630,7 @@ namespace FLVERtoASCII
                         }
                     }
 
-                    /*ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); //mesh name
-                    ascii.Add(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
-                    ascii.Add(Tex.ToString()); //tex count
-                    for (int k = 0; k < Tex; k++)
-                    {
-                        ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].MTD);
-                        ascii.Add("0");
-                    }*/
                     ascii.Add(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
-                    //VertSum = 0;
                     for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                     {
                         Vector3 transformedPos = Vector3.Transform(new Vector3(-Model[index].Meshes[i].Vertices[j].Position.X,
@@ -741,15 +667,9 @@ namespace FLVERtoASCII
                         {
                             int t = cbones.FindIndex(x => x.Name == Model[index].Bones[Model[index].Meshes[i].Vertices[j].BoneIndices[k]].Name);
                                     indices += (t + plusBone) + " ";
-                            //Model[index].Meshes[i].Vertices[j].BoneIndices[k]
-                            
-                            //IndiceIndex = k;
                         }
                         int temp = cbones.FindIndex(x => x.Name == Model[index].Bones[Model[index].Meshes[i].Vertices[j].BoneIndices[3]].Name);
-
                         indices += (temp + plusBone);
-
-                        //indices += Model[index].Meshes[i].Vertices[j].BoneIndices[3] + plusBone;
                         ascii.Add(indices);
 
                         string weights = "";
