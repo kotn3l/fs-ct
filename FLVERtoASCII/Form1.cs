@@ -252,9 +252,13 @@ namespace FLVERtoASCII
                             //chrbnds[i].Files[j].Name;
                         }
                     }
-                    else
+                    else if (Path.GetExtension(file).ToLower() == ".flver")
                     {
                         test = FLVER2.Read(file);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Wrong file!");
                     }
                     Conversion c = new Conversion(test);
                     c.WriteFLVERtoASCII(asciiPath.Text, saveName, bones.Checked, root.Checked);
@@ -287,6 +291,7 @@ namespace FLVERtoASCII
 
         private async void merge_Click(object sender, EventArgs e)
         {
+            bool ch = cb_Tex.Checked;
             //MessageBox.Show("Select a folder containing all armor pieces you want to merge -- be sure to have the flver files as well as the Bloodborne tool converted ascii-s in that one folder");
             using (var fbd = new FolderBrowserDialog())
             {
@@ -295,7 +300,7 @@ namespace FLVERtoASCII
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
                     //Conversion c = new Conversion();
-                    await Task.Run(() => new Conversion().chrbndFolder(fbd.SelectedPath, fbd.SelectedPath + "//out"));
+                    await Task.Run(() => new Conversion().chrbndFolder(fbd.SelectedPath, fbd.SelectedPath + "//out", ER_working_dir, ch));
                     //c.Merge(fbd.SelectedPath);
                 }
             }
