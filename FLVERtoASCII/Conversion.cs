@@ -132,8 +132,10 @@ namespace FLVERtoASCII
         public void WriteFLVERtoASCII(string outPath, string fileName, bool bones = false, bool addRoot = false, int index = 0, Dictionary<int, List<MATBIN>> material = null)
         {
             List<string> ascii = new List<string>();
-            List<string> texturestxt = new List<string>();
-            texturestxt.Add(fileName);
+            Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
+            List<string> texturestxtFile = new List<string>();
+            texturestxtFile.Add(fileName);
+            texturestxtFile.Add(seperator);
 
             int plusBone = 0;
             if (bones)
@@ -184,16 +186,20 @@ namespace FLVERtoASCII
             ascii.Add(Model[index].Meshes.Count.ToString());
             for (int i = 0; i < Model[index].Meshes.Count; i++)
             {
-                texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);   
+                if (texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
+                {
+                    continue;
+                }
+                texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());   
                 for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
                 {
                     if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
                     {
-                        texturestxt.Add("\t"+Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
-                    } else texturestxt.Add("\tEMPTY_SLOT");
+                        texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t"+Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                    } else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
 
                 }
-                texturestxt.Add(seperator);
+                //texturestxt.Add(seperator);
 
                 int Tex = 0;
                 for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
@@ -278,7 +284,16 @@ namespace FLVERtoASCII
 
             }
 
-            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxt);
+            foreach (var item in texturestxt)
+            {
+                texturestxtFile.Add(item.Key);
+                foreach (string text in item.Value)
+                {
+                    texturestxtFile.Add(text);
+                }
+                texturestxtFile.Add(seperator);
+            }
+            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxtFile);
 
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
@@ -299,9 +314,10 @@ namespace FLVERtoASCII
             List<string> ascii = new List<string>();
             Dictionary<int, Matrix4x4> transformOne = new Dictionary<int, Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transformMultpile = new Dictionary<int, List<Matrix4x4>>();
-            List<string> texturestxt = new List<string>();
-            texturestxt.Add(fileName);
-            texturestxt.Add(seperator);
+            Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
+            List<string> texturestxtFile = new List<string>();
+            texturestxtFile.Add(fileName);
+            texturestxtFile.Add(seperator);
             int plusBone = 0;
             if (addRoot)
             {
@@ -407,20 +423,24 @@ namespace FLVERtoASCII
                 {
                     for (int i = 0; i < Model[y].Meshes.Count; i++)
                     {
-                        texturestxt.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name);
+                        if (texturestxt.ContainsKey(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name))
+                        {
+                            continue;
+                        }
+                        texturestxt.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name, new List<string>());
                         if (material[Model[y].GetHashCode()].Count > 0)
                         {
                             for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
                             {
                                 if (material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path != "")
                                 {
-                                    texturestxt.Add("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
+                                    texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
                                 }
-                                else texturestxt.Add("\tEMPTY_SLOT");
+                                else texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
                             }
                         }
                         
-                        texturestxt.Add(seperator);
+                        //texturestxt.Add(seperator);
 
 
                         int Tex = 0;
@@ -518,11 +538,19 @@ namespace FLVERtoASCII
                         }
 
                     }
-                    texturestxt.Add(seperator);
+                    //texturestxt.Add(seperator);
                 }
             }
-
-            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxt);
+            foreach (var item in texturestxt)
+            {
+                texturestxtFile.Add(item.Key);
+                foreach (string text in item.Value)
+                {
+                    texturestxtFile.Add(text);
+                }
+                texturestxtFile.Add(seperator);
+            }
+            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxtFile);
             texturestxt.Clear();
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
@@ -535,8 +563,10 @@ namespace FLVERtoASCII
         public void WriteFLVERtoASCIIInOneCustomBones(string outPath, string fileName, List<FLVER.Bone> cbones, List<Matrix4x4> transform, Dictionary<int, List<MATBIN>> material, List<bool> overrideWeights, bool bones = false, bool addRoot = false)
         {
             List<string> ascii = new List<string>();
-            List<string> texturestxt = new List<string>();
-            texturestxt.Add(fileName);
+            Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
+            List<string> texturestxtFile = new List<string>();
+            texturestxtFile.Add(fileName);
+            texturestxtFile.Add(seperator);
             int plusBone = 0;
             if (bones)
             {
@@ -595,17 +625,21 @@ namespace FLVERtoASCII
             {
                 for (int i = 0; i < Model[index].Meshes.Count; i++)
                 {
-                    texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);
+                    if (texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
+                    {
+                        continue;
+                    }
+                    texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());
                     for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
                     {
                         if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
                         {
-                            texturestxt.Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                            texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
                         }
-                        else texturestxt.Add("\tEMPTY_SLOT");
+                        else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
 
                     }
-                    texturestxt.Add(seperator);
+                    //texturestxt.Add(seperator);
 
                     int Tex = 0;
                     for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
@@ -708,7 +742,16 @@ namespace FLVERtoASCII
                 }
             }
 
-            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxt);
+            foreach (var item in texturestxt)
+            {
+                texturestxtFile.Add(item.Key);
+                foreach (string text in item.Value)
+                {
+                    texturestxtFile.Add(text);
+                }
+                texturestxtFile.Add(seperator);
+            }
+            File.WriteAllLines(outPath + "\\" + fileName + "_tex.txt", texturestxtFile);
 
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
