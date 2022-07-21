@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SoulsFormats;
@@ -497,7 +498,7 @@ namespace FLVERtoASCII
             Games g = (Games)cb_GameList.SelectedIndex;
             string selected = (string)mapBox.SelectedItem;
             string map = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
-            await Task.Run(() => new Conversion().map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + selected.Split(null,',')[0].ToLower()));
+            await Task.Run(() => new Conversion().map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + Regex.Replace(Regex.Replace(selected, ",", ""), " ", "")));
             GC.Collect();
         }
 
