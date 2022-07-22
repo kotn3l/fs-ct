@@ -194,8 +194,11 @@ namespace FLVERtoASCII
                 {
                     if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
                     {
-                        texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t"+Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
-                    } else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
+                        if (!texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path)))
+                        {
+                            texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                        }
+                    } //else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
 
                 }
                 //texturestxt.Add(seperator);
@@ -432,9 +435,12 @@ namespace FLVERtoASCII
                             {
                                 if (material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path != "")
                                 {
-                                    texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
+                                    if (!texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path)))
+                                    {
+                                        texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
+                                    }
                                 }
-                                else texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
+                                //else texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
                             }
                         }
                         
@@ -631,9 +637,12 @@ namespace FLVERtoASCII
                     {
                         if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
                         {
-                            texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                            if (!texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path)))
+                            {
+                                texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                            }
                         }
-                        else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
+                        //else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
 
                     }
                     //texturestxt.Add(seperator);
