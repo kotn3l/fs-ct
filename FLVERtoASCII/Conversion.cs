@@ -8,8 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoulsFormats;
 using System.Diagnostics;
-
-
+using System.Text;
 
 namespace FLVERtoASCII
 {
@@ -135,7 +134,7 @@ namespace FLVERtoASCII
             {
                 return;
             }
-            List<string> ascii = new List<string>();
+            StringBuilder ascii = new StringBuilder();
             Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
             List<string> texturestxtFile = new List<string>();
             texturestxtFile.Add(fileName);
@@ -150,21 +149,21 @@ namespace FLVERtoASCII
                     plusBone = 1;
                 }
                 var boneMatrices = new Matrix4x4[Model[index].Bones.Count + plusBone];
-                ascii.Add((Model[index].Bones.Count + plusBone).ToString()); //Bone count
+                ascii.AppendLine((Model[index].Bones.Count + plusBone).ToString()); //Bone count
                 if (addRoot)
                 {
-                    ascii.Add("root");
-                    ascii.Add("-1");
-                    ascii.Add("0 0 0 0 0 0 1");
+                    ascii.AppendLine("root");
+                    ascii.AppendLine("-1");
+                    ascii.AppendLine("0 0 0 0 0 0 1");
                 }
 
                 for (int i = 0; i < Model[index].Bones.Count; i++) //Bone names, parents, xyz
                 {
                     if (HasCharsInRange(Model[index].Bones[i].Name, 0x30A0, 0x30FF) || HasCharsInRange(Model[index].Bones[i].Name, 0x4E00, 0x9FFF))
                     {
-                        ascii.Add(Model[index].Bones[i].Name + i);
+                        ascii.AppendLine(Model[index].Bones[i].Name + i);
                     }
-                    else ascii.Add(Model[index].Bones[i].Name);
+                    else ascii.AppendLine(Model[index].Bones[i].Name);
                     short pIndex = Model[index].Bones[i].ParentIndex;
                     Matrix4x4 translation = Matrix4x4.Identity;
                     if (true)
@@ -177,17 +176,17 @@ namespace FLVERtoASCII
                     }
 
                     boneMatrices[i] = Model[index].Bones[i].ComputeLocalTransform() * translation;
-                    ascii.Add((pIndex + plusBone).ToString());
-                    ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
+                    ascii.AppendLine((pIndex + plusBone).ToString());
+                    ascii.AppendLine(boneMatrices[i].M41.ToString("0.##########") + " " +
                               boneMatrices[i].M42.ToString("0.##########") + " " +
                               boneMatrices[i].M43.ToString("0.##########"));
                 }
             }
             else
             {
-                ascii.Add("0");
+                ascii.AppendLine("0");
             }
-            ascii.Add(Model[index].Meshes.Count.ToString());
+            ascii.AppendLine(Model[index].Meshes.Count.ToString());
             for (int i = 0; i < Model[index].Meshes.Count; i++)
             {
                 if (!texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
@@ -215,46 +214,46 @@ namespace FLVERtoASCII
                 if (Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name[0] == '#' ||
                     Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name.Contains('#'))
                 {
-                    ascii.Add(Regex.Replace(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, "#", "")); //mesh name
-                } else ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); 
-                ascii.Add(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
-                ascii.Add(Tex.ToString()); //tex count
+                    ascii.AppendLine(Regex.Replace(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, "#", "")); //mesh name
+                } else ascii.AppendLine(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); 
+                ascii.AppendLine(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
+                ascii.AppendLine(Tex.ToString()); //tex count
                 for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
                 {
                     for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
                     {
-                        ascii.Add(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Type);
+                        ascii.AppendLine(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Type);
                         if (Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path) == "" ||
                                              material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path == "")
                         {
-                            ascii.Add("UNK");
+                            ascii.AppendLine("UNK");
                         }
                         else
                         {
-                            ascii.Add(Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                            ascii.AppendLine(Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
                         }
                     }
                 }
-                ascii.Add(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
+                ascii.AppendLine(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                 for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                 {
                     //vert pos
-                    ascii.Add(-Model[index].Meshes[i].Vertices[j].Position.X + " " +
+                    ascii.AppendLine(-Model[index].Meshes[i].Vertices[j].Position.X + " " +
                               Model[index].Meshes[i].Vertices[j].Position.Y + " " +
                               Model[index].Meshes[i].Vertices[j].Position.Z);
                     //vert norm
-                    ascii.Add(-Model[index].Meshes[i].Vertices[j].Normal.X + " " +
+                    ascii.AppendLine(-Model[index].Meshes[i].Vertices[j].Normal.X + " " +
                               Model[index].Meshes[i].Vertices[j].Normal.Y + " " +
                               Model[index].Meshes[i].Vertices[j].Normal.Z);
                     //vert colors
-                    ascii.Add((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
+                    ascii.AppendLine((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
                               (Model[index].Meshes[i].Vertices[j].Colors[0].G * 255) + " " +
                               (Model[index].Meshes[i].Vertices[j].Colors[0].B * 255) + " " +
                               (Model[index].Meshes[i].Vertices[j].Colors[0].A * 255));
                     //vert uvs
                     for (int k = 0; k < Model[index].Meshes[i].Vertices[j].UVs.Count; k++)
                     {
-                        ascii.Add(Model[index].Meshes[i].Vertices[j].UVs[k].X + " " +
+                        ascii.AppendLine(Model[index].Meshes[i].Vertices[j].UVs[k].X + " " +
                               Model[index].Meshes[i].Vertices[j].UVs[k].Y);
                     }
                     //vert bone indices
@@ -265,7 +264,7 @@ namespace FLVERtoASCII
                         //IndiceIndex = k;
                     }
                     indices += Model[index].Meshes[i].Vertices[j].BoneIndices[3] + plusBone;
-                    ascii.Add(indices);
+                    ascii.AppendLine(indices);
 
                     string weights = "";
                     int WeightIndex = 0;
@@ -275,13 +274,13 @@ namespace FLVERtoASCII
                         WeightIndex = k;
                     }
                     weights += Model[index].Meshes[i].Vertices[j].BoneWeights[WeightIndex + 1];
-                    ascii.Add(weights);
+                    ascii.AppendLine(weights);
                 }
                 int FaceCount = Model[index].Meshes[i].FaceSets[0].Indices.Count;
-                ascii.Add((FaceCount / 3).ToString());
+                ascii.AppendLine((FaceCount / 3).ToString());
                 for (int j = 0; j < FaceCount; j++)
                 {
-                    ascii.Add(Model[index].Meshes[i].FaceSets[0].Indices[j] + " " +
+                    ascii.AppendLine(Model[index].Meshes[i].FaceSets[0].Indices[j] + " " +
                               Model[index].Meshes[i].FaceSets[0].Indices[j + 2] + " " +
                               Model[index].Meshes[i].FaceSets[0].Indices[j + 1]); //j+1 is last because of flipping
                     j++;
@@ -303,8 +302,7 @@ namespace FLVERtoASCII
 
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
-                foreach (string line in ascii)
-                    outputFile.WriteLine(line);
+                outputFile.Write(ascii.ToString());
             }
 
             ascii.Clear();
@@ -317,7 +315,8 @@ namespace FLVERtoASCII
                 return;
             }
 
-            List<string> ascii = new List<string>();
+            //List<string> ascii = new List<string>();
+            StringBuilder ascii = new StringBuilder();
             Dictionary<int, Matrix4x4> transformOne = new Dictionary<int, Matrix4x4>();
             Dictionary<int, List<Matrix4x4>> transformMultpile = new Dictionary<int, List<Matrix4x4>>();
             Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
@@ -371,14 +370,14 @@ namespace FLVERtoASCII
             }
             if (bones)
             {
-                ascii.Add((boneSum + plusBone).ToString());
+                ascii.AppendLine((boneSum + plusBone).ToString());
             }
-            else ascii.Add("0");
+            else ascii.AppendLine("0");
             if (addRoot)
             {
-                ascii.Add("root");
-                ascii.Add("-1");
-                ascii.Add("0 0 0 0 0 0 1");
+                ascii.AppendLine("root");
+                ascii.AppendLine("-1");
+                ascii.AppendLine("0 0 0 0 0 0 1");
             }
             for (int y = 0; y < Model.Count; y++)
             {
@@ -392,7 +391,7 @@ namespace FLVERtoASCII
                     List<int> countIndex = new List<int>();
                     for (int i = 0; i < Model[y].Bones.Count; i++) //Bone names, parents, xyz
                     {
-                        ascii.Add(geometry.FirstOrDefault(x => x.Value == Model[y]).Key + Model[y].Bones[i].Name);
+                        ascii.AppendLine(geometry.FirstOrDefault(x => x.Value == Model[y]).Key + Model[y].Bones[i].Name);
                         int pIndex = Model[y].Bones[i].ParentIndex;
                         Matrix4x4 translation = Matrix4x4.Identity;
                         if (true)
@@ -409,8 +408,8 @@ namespace FLVERtoASCII
                         {
                             //pIndex += prevBones;
                         }
-                        ascii.Add((pIndex + plusBone).ToString());
-                        ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
+                        ascii.AppendLine((pIndex + plusBone).ToString());
+                        ascii.AppendLine(boneMatrices[i].M41.ToString("0.##########") + " " +
                                   boneMatrices[i].M42.ToString("0.##########") + " " +
                                   boneMatrices[i].M43.ToString("0.##########"));
                     }
@@ -418,7 +417,7 @@ namespace FLVERtoASCII
                 }
             }
 
-            ascii.Add(MeshSum.ToString());
+            ascii.AppendLine(MeshSum.ToString());
             for (int y = 0; y < Model.Count; y++)
             {
                 if (!transform.ContainsKey(Model[y].GetHashCode())) //if model is not even on the map, skip
@@ -458,28 +457,28 @@ namespace FLVERtoASCII
                         }
                         if (Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name[0] == '#')
                         {
-                            ascii.Add(Regex.Replace(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name, "#", "")); //mesh name
+                            ascii.AppendLine(Regex.Replace(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name, "#", "")); //mesh name
                         }
-                        else ascii.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name);
-                        ascii.Add(Model[y].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
-                        ascii.Add(Tex.ToString()); //tex count
+                        else ascii.AppendLine(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name);
+                        ascii.AppendLine(Model[y].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
+                        ascii.AppendLine(Tex.ToString()); //tex count
                         for (int k = 0; k < material[Model[y].GetHashCode()].Count; k++)
                         {
                             for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
                             {
-                                ascii.Add(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Type);
+                                ascii.AppendLine(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Type);
                                 if (Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path) == "" || material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path == "")
                                 {
-                                    ascii.Add("UNK");
+                                    ascii.AppendLine("UNK");
                                 }
                                 else
                                 {
-                                    ascii.Add(Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
+                                    ascii.AppendLine(Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
                                 }
                             }
                         }
 
-                        ascii.Add(Model[y].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
+                        ascii.AppendLine(Model[y].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                         for (int j = 0; j < Model[y].Meshes[i].Vertices.Count; j++) //vertices
                         {
                             Vector3 transformedPos = Vector3.Transform(new Vector3(-Model[y].Meshes[i].Vertices[j].Position.X, 
@@ -491,27 +490,27 @@ namespace FLVERtoASCII
                                                                                             Model[y].Meshes[i].Vertices[j].Normal.Z), 
                                                                                             transform[Model[y].GetHashCode()][z]);
 
-                            ascii.Add(transformedPos.X + " " +
+                            ascii.AppendLine(transformedPos.X + " " +
                                       transformedPos.Y + " " +
                                       transformedPos.Z);
                             //vert norm
 
-                            ascii.Add(transformedNormal.X + " " +
+                            ascii.AppendLine(transformedNormal.X + " " +
                                       transformedNormal.Y + " " +
                                       transformedNormal.Z);
                             //vert colors
-                            /*ascii.Add((Model[y].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
+                            /*ascii.AppendLine((Model[y].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
                                       (Model[y].Meshes[i].Vertices[j].Colors[0].G * 255) + " " +
                                       (Model[y].Meshes[i].Vertices[j].Colors[0].B * 255) + " " +
                                       (Model[y].Meshes[i].Vertices[j].Colors[0].A * 255));*/
-                            ascii.Add(255 + " " +
+                            ascii.AppendLine(255 + " " +
                                       255 + " " +
                                       255 + " " +
                                       0);
                             //vert uvs
                             for (int k = 0; k < Model[y].Meshes[i].Vertices[j].UVs.Count; k++)
                             {
-                                ascii.Add(Model[y].Meshes[i].Vertices[j].UVs[k].X + " " +
+                                ascii.AppendLine(Model[y].Meshes[i].Vertices[j].UVs[k].X + " " +
                                       Model[y].Meshes[i].Vertices[j].UVs[k].Y);
                             }
                             //vert bone indices
@@ -522,7 +521,7 @@ namespace FLVERtoASCII
                                 //IndiceIndex = k;
                             }
                             indices += Model[y].Meshes[i].Vertices[j].BoneIndices[3] + plusBone;
-                            ascii.Add(indices);
+                            ascii.AppendLine(indices);
 
                             string weights = "";
                             int WeightIndex = 0;
@@ -532,13 +531,13 @@ namespace FLVERtoASCII
                                 WeightIndex = k;
                             }
                             weights += Model[y].Meshes[i].Vertices[j].BoneWeights[WeightIndex + 1];
-                            ascii.Add(weights);
+                            ascii.AppendLine(weights);
                         }
                         int FaceCount = Model[y].Meshes[i].FaceSets[0].Indices.Count;
-                        ascii.Add((FaceCount / 3).ToString());
+                        ascii.AppendLine((FaceCount / 3).ToString());
                         for (int j = 0; j < FaceCount; j++)
                         {
-                            ascii.Add(Model[y].Meshes[i].FaceSets[0].Indices[j] + " " +
+                            ascii.AppendLine(Model[y].Meshes[i].FaceSets[0].Indices[j] + " " +
                                       Model[y].Meshes[i].FaceSets[0].Indices[j + 2] + " " +
                                       Model[y].Meshes[i].FaceSets[0].Indices[j + 1]); //j+1 is last because of flipping
                             j++;
@@ -562,8 +561,9 @@ namespace FLVERtoASCII
             texturestxt.Clear();
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
-                foreach (string line in ascii)
-                    outputFile.WriteLine(line);
+                /*foreach (string line in ascii.ToString())
+                    outputFile.WriteLine(line);*/
+                outputFile.Write(ascii);
             }
             ascii.Clear();
 
@@ -574,7 +574,7 @@ namespace FLVERtoASCII
             {
                 return;
             }
-            List<string> ascii = new List<string>();
+            StringBuilder ascii = new StringBuilder();
             Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
             List<string> texturestxtFile = new List<string>();
             texturestxtFile.Add(fileName);
@@ -586,21 +586,21 @@ namespace FLVERtoASCII
                 {
                     plusBone = 1;
                 }
-                ascii.Add((cbones.Count+plusBone).ToString()); //Bone count
+                ascii.AppendLine((cbones.Count+plusBone).ToString()); //Bone count
 
                 if (addRoot)
                 {
-                    ascii.Add("root");
-                    ascii.Add("-1");
-                    ascii.Add("0 0 0 0 0 0 1");
+                    ascii.AppendLine("root");
+                    ascii.AppendLine("-1");
+                    ascii.AppendLine("0 0 0 0 0 0 1");
                 }
                 var boneMatrices = new Matrix4x4[cbones.Count + plusBone];
                 for (int i = 0; i < cbones.Count; i++) //Bone names, parents, xyz
                 {
                     if (HasCharsInRange(cbones[i].Name, 0x30A0, 0x30FF) || HasCharsInRange(cbones[i].Name, 0x4E00, 0x9FFF))
                     {
-                        ascii.Add(cbones[i].Name + i);
-                    } else ascii.Add(cbones[i].Name);
+                        ascii.AppendLine(cbones[i].Name + i);
+                    } else ascii.AppendLine(cbones[i].Name);
                     short pIndex = cbones[i].ParentIndex;
                     Matrix4x4 translation = Matrix4x4.Identity;
                     if (true)
@@ -612,15 +612,15 @@ namespace FLVERtoASCII
                         translation = boneMatrices[pIndex];
                     }
                     boneMatrices[i] = cbones[i].ComputeLocalTransform() * translation;
-                    ascii.Add((pIndex + plusBone).ToString());
-                    ascii.Add(boneMatrices[i].M41.ToString("0.##########") + " " +
+                    ascii.AppendLine((pIndex + plusBone).ToString());
+                    ascii.AppendLine(boneMatrices[i].M41.ToString("0.##########") + " " +
                               boneMatrices[i].M42.ToString("0.##########") + " " +
                               boneMatrices[i].M43.ToString("0.##########"));
                 }
             }
             else
             {
-                ascii.Add("0");
+                ascii.AppendLine("0");
             }
             
             uint MeshSum = 0;
@@ -632,7 +632,7 @@ namespace FLVERtoASCII
                 }
 
             }
-            ascii.Add(MeshSum.ToString());
+            ascii.AppendLine(MeshSum.ToString());
             for (int index = 0; index < Model.Count; index++)
             {
                 for (int i = 0; i < Model[index].Meshes.Count; i++)
@@ -662,29 +662,29 @@ namespace FLVERtoASCII
                     }
                     if (Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name[0] == '#')
                     {
-                        ascii.Add(Regex.Replace(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, "#", "")); //mesh name
+                        ascii.AppendLine(Regex.Replace(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, "#", "")); //mesh name
                     }
-                    else ascii.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);
-                    ascii.Add(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
-                    ascii.Add(Tex.ToString()); //tex count
+                    else ascii.AppendLine(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);
+                    ascii.AppendLine(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
+                    ascii.AppendLine(Tex.ToString()); //tex count
                     for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
                     {
                         for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
                         {
-                            ascii.Add(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Type);
+                            ascii.AppendLine(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Type);
                             if (Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path) == "" ||
                                                  material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path == "")
                             {
-                                ascii.Add("UNK");
+                                ascii.AppendLine("UNK");
                             }
                             else
                             {
-                                ascii.Add(Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
+                                ascii.AppendLine(Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
                             }
                         }
                     }
 
-                    ascii.Add(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
+                    ascii.AppendLine(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                     for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                     {
                         Vector3 transformedPos = Vector3.Transform(new Vector3(-Model[index].Meshes[i].Vertices[j].Position.X,
@@ -697,22 +697,22 @@ namespace FLVERtoASCII
                                                                                         transform[index]);
 
                         //vert pos
-                        ascii.Add(transformedPos.X + " " +
+                        ascii.AppendLine(transformedPos.X + " " +
                                   transformedPos.Y + " " +
                                   transformedPos.Z);
                         //vert norm
-                        ascii.Add(transformedNormal.X + " " +
+                        ascii.AppendLine(transformedNormal.X + " " +
                                   transformedNormal.Y + " " +
                                   transformedNormal.Z);
                         //vert colors
-                        ascii.Add((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
+                        ascii.AppendLine((Model[index].Meshes[i].Vertices[j].Colors[0].R * 255) + " " +
                                   (Model[index].Meshes[i].Vertices[j].Colors[0].G * 255) + " " +
                                   (Model[index].Meshes[i].Vertices[j].Colors[0].B * 255) + " " +
                                   (Model[index].Meshes[i].Vertices[j].Colors[0].A * 255));
                         //vert uvs
                         for (int k = 0; k < Model[index].Meshes[i].Vertices[j].UVs.Count; k++)
                         {
-                            ascii.Add(Model[index].Meshes[i].Vertices[j].UVs[k].X + " " +
+                            ascii.AppendLine(Model[index].Meshes[i].Vertices[j].UVs[k].X + " " +
                                   Model[index].Meshes[i].Vertices[j].UVs[k].Y);
                         }
                         //vert bone indices
@@ -724,7 +724,7 @@ namespace FLVERtoASCII
                         }
                         int temp = cbones.FindIndex(x => x.Name == Model[index].Bones[Model[index].Meshes[i].Vertices[j].BoneIndices[3]].Name);
                         indices += (temp + plusBone);
-                        ascii.Add(indices);
+                        ascii.AppendLine(indices);
 
                         string weights = "";
                         int WeightIndex = 0;
@@ -736,17 +736,17 @@ namespace FLVERtoASCII
                         weights += Model[index].Meshes[i].Vertices[j].BoneWeights[WeightIndex + 1];
                         if (overrideWeights[index])
                         {
-                            ascii.Add("1 1 1 1");
+                            ascii.AppendLine("1 1 1 1");
                         }
-                        else ascii.Add(weights);
+                        else ascii.AppendLine(weights);
                     }
 
 
                     int FaceCount = Model[index].Meshes[i].FaceSets[0].Indices.Count;
-                    ascii.Add((FaceCount / 3).ToString());
+                    ascii.AppendLine((FaceCount / 3).ToString());
                     for (int j = 0; j < FaceCount; j++)
                     {
-                        ascii.Add(Model[index].Meshes[i].FaceSets[0].Indices[j] + " " +
+                        ascii.AppendLine(Model[index].Meshes[i].FaceSets[0].Indices[j] + " " +
                                   Model[index].Meshes[i].FaceSets[0].Indices[j + 2] + " " +
                                   Model[index].Meshes[i].FaceSets[0].Indices[j + 1]); //j+1 is last because of flipping
                         j++;
@@ -768,8 +768,7 @@ namespace FLVERtoASCII
 
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(outPath, fileName + ".ascii")))
             {
-                foreach (string line in ascii)
-                    outputFile.WriteLine(line);
+                outputFile.Write(ascii.ToString());
             }
 
             ascii.Clear();
