@@ -131,6 +131,10 @@ namespace FLVERtoASCII
 
         public void WriteFLVERtoASCII(string outPath, string fileName, bool bones = false, bool addRoot = false, int index = 0, Dictionary<int, List<MATBIN>> material = null)
         {
+            if (File.Exists(Path.Combine(outPath, fileName + ".ascii")))
+            {
+                return;
+            }
             List<string> ascii = new List<string>();
             Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
             List<string> texturestxtFile = new List<string>();
@@ -566,6 +570,10 @@ namespace FLVERtoASCII
         }
         public void WriteFLVERtoASCIIInOneCustomBones(string outPath, string fileName, List<FLVER.Bone> cbones, List<Matrix4x4> transform, Dictionary<int, List<MATBIN>> material, List<bool> overrideWeights, bool bones = false, bool addRoot = false)
         {
+            if (File.Exists(Path.Combine(outPath, fileName + ".ascii")))
+            {
+                return;
+            }
             List<string> ascii = new List<string>();
             Dictionary<string, List<string>> texturestxt = new Dictionary<string, List<string>>();
             List<string> texturestxtFile = new List<string>();
