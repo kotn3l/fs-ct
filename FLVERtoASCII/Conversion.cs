@@ -290,7 +290,7 @@ namespace FLVERtoASCII
 
             }
 
-            foreach (var item in texturestxt)
+            foreach (var item in texturestxt.OrderBy(x => x.Key))
             {
                 texturestxtFile.Add(item.Key);
                 foreach (string text in item.Value)
@@ -549,7 +549,7 @@ namespace FLVERtoASCII
                     //texturestxt.Add(seperator);
                 }
             }
-            foreach (var item in texturestxt)
+            foreach (var item in texturestxt.OrderBy(x => x.Key))
             {
                 texturestxtFile.Add(item.Key);
                 foreach (string text in item.Value)
@@ -755,8 +755,7 @@ namespace FLVERtoASCII
 
                 }
             }
-
-            foreach (var item in texturestxt)
+            foreach (var item in texturestxt.OrderBy(x => x.Key))
             {
                 texturestxtFile.Add(item.Key);
                 foreach (string text in item.Value)
