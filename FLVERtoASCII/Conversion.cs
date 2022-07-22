@@ -186,11 +186,10 @@ namespace FLVERtoASCII
             ascii.Add(Model[index].Meshes.Count.ToString());
             for (int i = 0; i < Model[index].Meshes.Count; i++)
             {
-                if (texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
+                if (!texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
                 {
-                    continue;
+                    texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());
                 }
-                texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());   
                 for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
                 {
                     if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
@@ -423,11 +422,10 @@ namespace FLVERtoASCII
                 {
                     for (int i = 0; i < Model[y].Meshes.Count; i++)
                     {
-                        if (texturestxt.ContainsKey(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name))
+                        if (!texturestxt.ContainsKey(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name))
                         {
-                            continue;
+                            texturestxt.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name, new List<string>());
                         }
-                        texturestxt.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name, new List<string>());
                         if (material[Model[y].GetHashCode()].Count > 0)
                         {
                             for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
@@ -625,11 +623,10 @@ namespace FLVERtoASCII
             {
                 for (int i = 0; i < Model[index].Meshes.Count; i++)
                 {
-                    if (texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
+                    if (!texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
                     {
-                        continue;
+                        texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());
                     }
-                    texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());
                     for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
                     {
                         if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
@@ -1127,7 +1124,7 @@ namespace FLVERtoASCII
         }
 
         private Dictionary<string, FLVER2> geometry;
-        public void map(Games game, string erdir, string map, string outFileName)
+        public void map(GAME game, string erdir, string map, string outFileName)
         {
             //lot of map object placement code from googleben's ERMapViewer!!! all credit goes to him!!!
             Stopwatch sw = new Stopwatch();
@@ -1161,21 +1158,21 @@ namespace FLVERtoASCII
             string bucket = "";
             switch (game)
             {
-                case Games.ELDEN_RING:
+                case GAME.ELDEN_RING:
                     gameCode = "GR";
                     extension = "flver";
                     matPathFirst = "N:\\GR\\data\\INTERROOT_win64\\material\\matbin";
                     //mat = MTD.Read(BND4.Read(erdir + "//material//allmaterial.matbinbnd"));
                     break;
-                case Games.SEKIRO:
+                case GAME.SEKIRO:
                     gameCode = "SE";
                     extension = "objbnd";
                     break;
-                case Games.BLOODBORNE:
+                case GAME.BLOODBORNE:
                     gameCode = "SPRJ";
                     extension = "objbnd";
                     break;
-                case Games.DARK_SOULS:
+                case GAME.DARK_SOULS:
                     gameCode = "DS";
                     extension = "objbnd";
                     break;
@@ -1235,7 +1232,7 @@ namespace FLVERtoASCII
             }
             switch (game)
             {
-                case Games.ELDEN_RING:
+                case GAME.ELDEN_RING:
                     string geomFolder = Path.Combine(erdir, "asset", "aeg");
                     for (int i = 0; i < msb.Models.Objects.Count; i++)
                     {
