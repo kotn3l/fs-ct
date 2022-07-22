@@ -13,26 +13,6 @@ using SoulsFormats;
 
 namespace FLVERtoASCII
 {
-    public enum Games
-    {
-        ELDEN_RING = 0,
-        SEKIRO = 1,
-        BLOODBORNE = 2,
-        DARK_SOULS = 3
-    }
-
-    public enum LANG
-    {
-        JPNJP = 0,
-        ENGUS = 1
-    }
-
-    public enum PLATFORM
-    {
-        INTERROOT_win64 = 0,
-        INTERROOT_ps4 = 1
-    }
-
     public partial class Form1 : Form
     {
         public static string[] Games_ToString = new string[] { "Elden Ring", "Sekiro", "Bloodborne", "Dark Souls 1/3" };
@@ -178,7 +158,18 @@ namespace FLVERtoASCII
             { "m35_00_00_00", "Research Hall" },
             { "m36_00_00_00", "Fishing Hamlet" },
         };
-
+        public static readonly Dictionary<string, string> SEKmaps = new Dictionary<string, string>
+        {
+            { "m10_00_00_00", "Hirata Estate" },
+            { "m11_00_00_00", "Ashina Outskirts" },
+            { "m11_01_00_00", "Ashina Castle" },
+            { "m11_02_00_00", "Ashina Reservoir" },
+            { "m13_00_00_00", "Abandoned Dungeon" },
+            { "m15_00_00_00", "Mibu Village" },
+            { "m17_00_00_00", "Sunken Valley" },
+            { "m20_00_00_00", "Senpou Temple, Mt. Kongo" },
+            { "m25_00_00_00", "Fountainhead Palace" }
+        };
 
         public Form1()
         {
@@ -495,7 +486,7 @@ namespace FLVERtoASCII
             //Conversion c = new Conversion();
             //c.msg(ER_working_dir, "");
             //MSBE test = MSBE.Read(ER_working_dir+ $"//map//mapstudio//{ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key}.msb");
-            Games g = (Games)cb_GameList.SelectedIndex;
+            GAME g = (GAME)cb_GameList.SelectedIndex;
             string selected = (string)mapBox.SelectedItem;
             string map = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
             await Task.Run(() => new Conversion().map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + Regex.Replace(Regex.Replace(selected, ",", ""), " ", "")));
