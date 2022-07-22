@@ -857,7 +857,7 @@ namespace FLVERtoASCII
                     }
                 }
             }
-            convertTextures(ref materials, ref matbnd, erdir, matPathFirst, outPath, false);
+            convertMatBin(ref materials, ref matbnd, erdir, matPathFirst, outPath, false);
             for (int i = 0; i < Model.Count; i++)
             {
                 WriteFLVERtoASCII(outPath, filenames[i], true, true, i, materials);
@@ -1075,7 +1075,7 @@ namespace FLVERtoASCII
                 weights.Add(true);
             }
 
-            convertTextures(ref materials, ref matbnd, erdir, matPathFirst, Path.Combine(erdir, outName + "_tex"), textures);
+            convertMatBin(ref materials, ref matbnd, erdir, matPathFirst, Path.Combine(erdir, outName + "_tex"), textures);
 
             for (int i = 0; i < merge.Count; i++)
             {
@@ -1227,7 +1227,7 @@ namespace FLVERtoASCII
                     }
                 }
             }
-            convertTextures(ref materials, ref matbnd, erdir, matPathFirst, erdir + "\\" + outFileName + "\\" + outFileName + "_tex", true,fails);
+            convertMatBin(ref materials, ref matbnd, erdir, matPathFirst, erdir + "\\" + outFileName + "\\" + outFileName + "_tex", true,fails);
             for (int i = 0; i < Model.Count; i++)
             {
                 transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
@@ -1280,7 +1280,7 @@ namespace FLVERtoASCII
 
                         }
                     }
-                    convertTextures(ref materials, ref matbnd, erdir, matPathFirst, erdir + "\\" + outFileName + "\\"+ outFileName + "_tex", true,fails);
+                    convertMatBin(ref materials, ref matbnd, erdir, matPathFirst, erdir + "\\" + outFileName + "\\"+ outFileName + "_tex", true,fails);
                     break;
                 default:
                     string objFolder = Path.Combine(erdir, "obj");
@@ -1435,7 +1435,7 @@ namespace FLVERtoASCII
         }
 
         List<string> textureNames = new List<string>();
-        public void convertTextures(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
+        public void convertMatBin(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
         {
             string temp = outPath;
             if (!Directory.Exists(outPath))
