@@ -61,6 +61,7 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.basicFLVER = new System.Windows.Forms.TabPage();
             this.playerModel = new System.Windows.Forms.TabPage();
+            this.cb_BodyUnder = new System.Windows.Forms.CheckBox();
             this.mapExt = new System.Windows.Forms.TabPage();
             this.mapInt = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -69,7 +70,6 @@
             this.cb_destPlatf = new System.Windows.Forms.ComboBox();
             this.cb_sourcePlatf = new System.Windows.Forms.ComboBox();
             this.tb_dcxDir = new System.Windows.Forms.TextBox();
-            this.cb_BodyUnder = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.basicFLVER.SuspendLayout();
             this.playerModel.SuspendLayout();
@@ -260,6 +260,7 @@
             this.cb_GameList.Name = "cb_GameList";
             this.cb_GameList.Size = new System.Drawing.Size(174, 21);
             this.cb_GameList.TabIndex = 18;
+            this.cb_GameList.SelectedIndexChanged += new System.EventHandler(this.cb_GameList_SelectedIndexChanged);
             // 
             // lefthand
             // 
@@ -299,6 +300,7 @@
             // 
             // beardparts
             // 
+            this.beardparts.Enabled = false;
             this.beardparts.FormattingEnabled = true;
             this.beardparts.Location = new System.Drawing.Point(180, 24);
             this.beardparts.Name = "beardparts";
@@ -308,6 +310,7 @@
             // 
             // hairparts
             // 
+            this.hairparts.Enabled = false;
             this.hairparts.FormattingEnabled = true;
             this.hairparts.Location = new System.Drawing.Point(180, 141);
             this.hairparts.Name = "hairparts";
@@ -317,6 +320,7 @@
             // 
             // eyebrowparts
             // 
+            this.eyebrowparts.Enabled = false;
             this.eyebrowparts.FormattingEnabled = true;
             this.eyebrowparts.Location = new System.Drawing.Point(180, 258);
             this.eyebrowparts.Name = "eyebrowparts";
@@ -426,6 +430,17 @@
             this.playerModel.Text = "Player Model";
             this.playerModel.UseVisualStyleBackColor = true;
             // 
+            // cb_BodyUnder
+            // 
+            this.cb_BodyUnder.AutoSize = true;
+            this.cb_BodyUnder.Location = new System.Drawing.Point(262, 53);
+            this.cb_BodyUnder.Name = "cb_BodyUnder";
+            this.cb_BodyUnder.Size = new System.Drawing.Size(140, 17);
+            this.cb_BodyUnder.TabIndex = 34;
+            this.cb_BodyUnder.Text = "Add Body Under Armor?";
+            this.cb_BodyUnder.UseVisualStyleBackColor = true;
+            this.cb_BodyUnder.CheckedChanged += new System.EventHandler(this.cb_BodyUnder_CheckedChanged);
+            // 
             // mapExt
             // 
             this.mapExt.Controls.Add(this.mapInt);
@@ -504,16 +519,6 @@
             this.tb_dcxDir.Name = "tb_dcxDir";
             this.tb_dcxDir.Size = new System.Drawing.Size(416, 20);
             this.tb_dcxDir.TabIndex = 32;
-            // 
-            // cb_BodyUnder
-            // 
-            this.cb_BodyUnder.AutoSize = true;
-            this.cb_BodyUnder.Location = new System.Drawing.Point(262, 53);
-            this.cb_BodyUnder.Name = "cb_BodyUnder";
-            this.cb_BodyUnder.Size = new System.Drawing.Size(140, 17);
-            this.cb_BodyUnder.TabIndex = 34;
-            this.cb_BodyUnder.Text = "Add Body Under Armor?";
-            this.cb_BodyUnder.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 

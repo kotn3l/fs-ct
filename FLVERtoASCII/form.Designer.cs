@@ -118,5 +118,65 @@ namespace FLVERtoASCII {
                 this["dcxDir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string default_sek_dir {
+            get {
+                return ((string)(this["default_sek_dir"]));
+            }
+            set {
+                this["default_sek_dir"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string default_ds1_dir {
+            get {
+                return ((string)(this["default_ds1_dir"]));
+            }
+            set {
+                this["default_ds1_dir"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string default_ds3_dir {
+            get {
+                return ((string)(this["default_ds3_dir"]));
+            }
+            set {
+                this["default_ds3_dir"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string default_bb_dir {
+            get {
+                return ((string)(this["default_bb_dir"]));
+            }
+            set {
+                this["default_bb_dir"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int last_game {
+            get {
+                return ((int)(this["last_game"]));
+            }
+            set {
+                this["last_game"] = value;
+            }
+        }
     }
 }

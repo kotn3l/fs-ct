@@ -689,15 +689,18 @@ namespace FLVERtoASCII
             ascii.Clear();
             
         }
-        public void chrbndFolder(string inPath, string outPath, string erdir, bool textures = true)
+        public void chrbndFolder(string inPath, string outPath, string erdir, GAME game, bool textures = true)
         {
             string[] tomb = Directory.GetFiles(inPath, "*.chrbnd");
+                     tomb ??= Directory.GetFiles(inPath, "*.chrbnd.dcx");
             string[] tombP = Directory.GetFiles(inPath, "*.partsbnd");
+                     tombP ??= Directory.GetFiles(inPath, "*.partsbnd.dcx");
             string[] texs = Directory.GetFiles(inPath, "*.texbnd");
+                     texs ??= Directory.GetFiles(inPath, "*.texbnd");
             string[] flvers = Directory.GetFiles(inPath, "*.flver");
             List<string> filenames = new List<string>();
             List<string> filenamesP = new List<string>();
-            List<string> filenamesTex = new List<string>();
+            //List<string> filenamesTex = new List<string>();
             List<BND4> chrbnds = new List<BND4>();
             //List<BND4> partbnds = new List<BND4>();
             List<BND4> texbnds = new List<BND4>();
@@ -1348,7 +1351,7 @@ namespace FLVERtoASCII
         }
 
         List<string> textureNames = new List<string>();
-        public void convertMatBin(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
+        private void convertMatBin(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
         {
             string temp = outPath;
             if (!Directory.Exists(outPath))
@@ -1424,6 +1427,10 @@ namespace FLVERtoASCII
                 //transforms.Add(Model[i].GetHashCode(), new List<Matrix4x4>());
                 //transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
+        }
+        private void convertMtdBnd(ref Dictionary<int, List<MTD>> materials, ref MTD matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
+        {
+
         }
         private string decideLang(LANG language)
         {

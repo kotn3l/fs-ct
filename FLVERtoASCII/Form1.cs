@@ -19,7 +19,7 @@ namespace FLVERtoASCII
         public static string[] Lang_ToString = new string[] { "English", "Japanese" };
         public static string[] Platform_ToString = new string[] { "INTERROOT_win64", "INTERROOT_ps4" };
 
-        private string ER_working_dir = "";
+        private string[] game_dir = new string[4];
         private List<string> armorsets = new List<string>();
         private List<string> weapons = new List<string>();
         private List<string> hairs = new List<string>();
@@ -170,12 +170,139 @@ namespace FLVERtoASCII
             { "m20_00_00_00", "Senpou Temple, Mt. Kongo" },
             { "m25_00_00_00", "Fountainhead Palace" }
         };
+        public static readonly Dictionary<string, string>[] game_maps = new Dictionary<string, string>[4]
+        {
+            new Dictionary<string, string>{
+            { "m10_00_00_00", "Stormveil Castle, full detail" },
+            { "m10_00_00_99", "Overworld, low detail from Stormveil" },
+            { "m10_01_00_00", "Chapel of Anticipation, full detal" },
+            //m10_01_00_99
+            { "m11_00_00_00", "Leyndell, full detail" },
+            { "m11_00_00_99", "Overworld, low detail from Leyndell" },
+            { "m11_05_00_00", "Burned Leyndell, full detail" },
+            { "m11_05_00_99", "Overworld, low detail from burned Leyndell" },
+            { "m11_10_00_00", "Roundtable Hold, full detail" },
+            { "m11_10_00_99", "Roundtable Hold, low detail" },
+            { "m11_70_00_00", "Burned Leyndell, full detail" },
+            { "m11_71_00_00", "Burned Leyndell, full detail" },
+            { "m11_71_00_99", "Forge of the Giants, low detail" },
+            { "m11_72_00_00", "Burned Leyndell, full detail" },
+            { "m12_01_00_00", "Ainsel River Basin, full detail" },
+            { "m12_01_00_99", "Roof stars" },
+            { "m12_02_00_00", "Soifra River Basin, full detail" },
+            { "m12_02_00_99", "Roof stars" },
+            { "m12_03_00_00", "Deeproot Depths, full detail" },
+            { "m12_03_00_99", "Roof" },
+            { "m12_04_00_00", "Naturalborn boss arena, full detail" },
+            { "m12_05_00_00", "Mohgwyn Palace, full detail" },
+            { "m12_07_00_00", "Nokron entrance, full detail" },
+            { "m12_08_00_00", "Ancestor Spirit boss arena, full detail" },
+            { "m12_09_00_00", "Ancestor Spirit boss arena, full detail" },
+            { "m13_00_00_00", "Crumbling Farum Azula, full detail" },
+            { "m13_00_00_99", "Overworld, low detail from Farum Azula" },
+            { "m14_00_00_00", "Academy of Raya Lucaria, full detail" },
+            { "m14_00_00_99", "Overworld, low detail from Raya Lucaria" },
+            { "m15_00_00_00", "Haligtree, full detail" },
+            { "m15_00_00_99", "Overworld, low detail from Haligtree" },
+            { "m16_00_00_00", "Volcano Manor, full detail" },
+            { "m16_00_00_99", "Overworld, low detail from Volcano Manor" },
+            { "m18_00_00_00", "Forgotten Hero's Grave" },
+            { "m19_00_00_00", "Radagon boss arena" },
+            { "m19_00_00_99", "Radagon boss arena, background details" },
+            { "m19_70_00_00", "Radagon boss arena" },
+            { "m30_00_00_00", "Tombsward Catacombs (Weeping Peninsula)" },
+            { "m30_01_00_00", "Impaler's Catacombs (Weeping Peninsula)" },
+            { "m30_02_00_00", "Stormfoot Catacombs (Limgrave)" },
+            { "m30_03_00_00", "Road's End Catacombs (Liurnia)" },
+            { "m30_04_00_00", "Murkwater Catacombs (Limgrave)" },
+            { "m30_05_00_00", "Black Knife Catacombs (Liurnia)" },
+            { "m30_06_00_00", "Cliffbottom Catacombs (Liurnia)" },
+            { "m30_07_00_00", "Wyndham Catacombs (Altus)" },
+            { "m30_08_00_00", "Sainted Hero's Grave (Altus)" },
+            { "m30_09_00_00", "Gelmir Hero's Grave (Gelmir)" },
+            { "m30_10_00_00", "Auriza Hero's Grave (Altus)" },
+            { "m30_11_00_00", "Deathtouched Catacombs (Limgrave)" },
+            { "m30_12_00_00", "Unsightly Catacombs (Altus)" },
+            { "m30_13_00_00", "Auriza Side Tomb (Altus)" },
+            { "m30_14_00_00", "Minor Erdtree Catacombs (Caelid)" },
+            { "m30_15_00_00", "Caelid Catacombs (Caelid)" },
+            { "m30_16_00_00", "War-Dead Catacombs (Caelid)" },
+            { "m30_17_00_00", "Giant-Conquering Hero's Grave (Mountaintops)" },
+            { "m30_18_00_00", "Giants' Mountaintop Catacombs (Mountaintops)" },
+            { "m30_19_00_00", "Consecrated Snowfield Catacombs (Snowfield)" },
+            { "m30_20_00_00", "Hidden Path to the Haligtree" },
+            { "m31_00_00_00", "Murkwater Cave (Limgrave)" },
+            { "m31_01_00_00", "Earthbore Cave (Limgrave)" },
+            { "m31_02_00_00", "Tombsward Cave (Weeping Peninsula)" },
+            { "m31_03_00_00", "Groveside Cave (Limgrave)" },
+            { "m31_04_00_00", "Stillwater Cave (Liurnia)" },
+            { "m31_05_00_00", "Lakeside Crystal Cave (Liurnia)" },
+            { "m31_06_00_00", "Academy Crystal Cave (Liurnia)" },
+            { "m31_07_00_00", "Seethewater Cave (Altus)" },
+            { "m31_09_00_00", "Volcano Cave (Gelmir)" },
+            { "m31_10_00_00", "Dragonbarrow Cave (Caelid)" },
+            { "m31_11_00_00", "Sellia Hideaway (Caelid)" },
+            { "m31_12_00_00", "Cave of the Forlorn (Snowfield)" },
+            { "m31_15_00_00", "Costal Cave (Limgrave)" },
+            { "m31_17_00_00", "Highroad Cave (Limgrave)" },
+            { "m31_18_00_00", "Perfumer's Grotto (Altus)" },
+            { "m31_19_00_00", "Sage's Cave (Altus)" },
+            { "m31_20_00_00", "Abandoned Cave (Caelid)" },
+            { "m31_21_00_00", "Gaol Cave (Caelid)" },
+            { "m31_22_00_00", "Spiritcaller Cave (Mountaintops)" },
+            { "m32_00_00_00", "Morne Tunnel (Limgrave)" },
+            { "m32_01_00_00", "Limgrave Tunnels (Limgrave)" },
+            { "m32_02_00_00", "Raya Lucaria Crystal Tunnel (Liurnia)" },
+            { "m32_04_00_00", "Old Altus Tunnel (Altus)" },
+            { "m32_05_00_00", "Altus Tunnel (Altus)" },
+            { "m32_07_00_00", "Gael Tunnel (Caelid)" },
+            { "m32_08_00_00", "Sellia Crystal Tunnel (Caelid)" },
+            { "m32_11_00_00", "Yelough Anix Tunnel (Snowfield)" },
+            { "m34_10_00_00", "Divine Tower of Limgrave, full detail" },
+            { "m34_11_00_00", "Divine Tower of Liurnia, full detail" },
+            { "m34_12_00_00", "Divine Tower of West Altus and Sealed Tunnel, full detail" },
+            { "m34_13_00_00", "Divine Tower of Caelid, interior" },
+            { "m34_14_00_00", "Divine Tower of East Altus, full detail" },
+            { "m34_15_00_00", "Isloated Divine Tower, full detail" },
+            { "m35_00_00_00", "Subterranean Shunning-Grounds" },
+            { "m39_20_00_00", "Ruin-Strewn Precipice" },
+            { "m60_10_09_02", "West Limgrave" }},
+            new Dictionary<string, string>{
+            { "m10_00_00_00", "Hirata Estate" },
+            { "m11_00_00_00", "Ashina Outskirts" },
+            { "m11_01_00_00", "Ashina Castle" },
+            { "m11_02_00_00", "Ashina Reservoir" },
+            { "m13_00_00_00", "Abandoned Dungeon" },
+            { "m15_00_00_00", "Mibu Village" },
+            { "m17_00_00_00", "Sunken Valley" },
+            { "m20_00_00_00", "Senpou Temple, Mt. Kongo" },
+            { "m25_00_00_00", "Fountainhead Palace" }},
+            new Dictionary<string, string>{
+            { "m21_00_00_00", "Hunter's Dream" },
+            { "m21_01_00_00", "Abandoned Old Workshop (Hunter's Dream)" },
+            { "m22_00_00_00", "Hemwick Charnel Lane" },
+            { "m23_00_00_00", "Old Yharnam" },
+            { "m24_00_00_00", "Cathedral Ward" },
+            { "m24_01_00_00", "Central Yahrnam" },
+            { "m24_02_00_00", "Upper Cathedral Ward" },
+            { "m25_00_00_00", "Cainhurst" },
+            { "m26_00_00_00", "Nightmare of Mensis" },
+            { "m27_00_00_00", "Forbidden Woods" },
+            { "m28_00_00_00", "Yahar'gul, Unseen Village" },
+            { "m29_AA_BB_CC", "Chalice Dungeons" },
+            { "m32_00_00_00", "Byrgenwerth" },
+            { "m33_00_00_00", "Nightmare Frontier" },
+            { "m34_00_00_00", "Hunter's Nightmare" },
+            { "m35_00_00_00", "Research Hall" },
+            { "m36_00_00_00", "Fishing Hamlet" }},
+            new Dictionary<string, string>()
+        };
 
         public Form1()
         {
             InitializeComponent();
-            mapBox.DataSource = ERmaps.Values.ToList();
-            mapBox.SelectedIndex = 0;
+            //mapBox.DataSource = ERmaps.Values.ToList();
+            //mapBox.SelectedIndex = 0;
             mapBox.Enabled = false;
             cb_GameList.DataSource = Games_ToString;
             cb_sourcePlatf.DataSource = new List<string>(Platform_ToString);
@@ -185,15 +312,51 @@ namespace FLVERtoASCII
             //bones.Checked = false;
             //bones.Enabled = false;
         }
-        private void loadSettings()
+        private void ER_dir()
         {
             if (form.Default.default_er_dir != "" && Directory.Exists(form.Default.default_er_dir))
             {
-                ER_working_dir = form.Default.default_er_dir;
+                game_dir[(int)GAME.ELDEN_RING] = form.Default.default_er_dir;
                 tb_GameDir.Text = form.Default.default_er_dir;
                 loadDir();
-            } else tb_GameDir.Text = "Saved game directory from config doesnt exist!!";
-
+            }
+            //else tb_GameDir.Text = "Saved game directory from config doesnt exist!!";
+        }
+        private void SEK_dir()
+        {
+            if (form.Default.default_sek_dir != "" && Directory.Exists(form.Default.default_sek_dir))
+            {
+                game_dir[(int)GAME.SEKIRO] = form.Default.default_sek_dir;
+                tb_GameDir.Text = form.Default.default_er_dir;
+                loadDir();
+            }
+        }
+        private void DS3_dir()
+        {
+            if (form.Default.default_ds3_dir != "" && Directory.Exists(form.Default.default_ds3_dir))
+            {
+                game_dir[(int)GAME.DARK_SOULS] = form.Default.default_ds3_dir;
+                tb_GameDir.Text = form.Default.default_er_dir;
+                loadDir();
+            }
+        }
+        private void BB_dir()
+        {
+            if (form.Default.default_bb_dir != "" && Directory.Exists(form.Default.default_bb_dir))
+            {
+                game_dir[(int)GAME.BLOODBORNE] = form.Default.default_bb_dir;
+                tb_GameDir.Text = form.Default.default_er_dir;
+                loadDir();
+            }
+            //else tb_GameDir.Text = "Saved game directory from config doesnt exist!!";
+        }
+        private void loadSettings()
+        {
+            ER_dir();
+            SEK_dir();
+            BB_dir();
+            DS3_dir();
+            cb_GameList.SelectedIndex = form.Default.last_game;
             if (form.Default.dcxDir != "" && Directory.Exists(form.Default.dcxDir))
             {
                 tb_dcxDir.Text = form.Default.dcxDir;
@@ -284,18 +447,21 @@ namespace FLVERtoASCII
         private async void merge_Click(object sender, EventArgs e)
         {
             bool ch = cb_Tex.Checked;
+            int game = cb_GameList.SelectedIndex;
+            GAME g = (GAME)game;
+            await Task.Run(() => new Conversion().chrbndFolder(game_dir[game] + "//chr", game_dir[game] + "//chr//out", game_dir[game], g, ch));
             //MessageBox.Show("Select a folder containing all armor pieces you want to merge -- be sure to have the flver files as well as the Bloodborne tool converted ascii-s in that one folder");
-            using (var fbd = new FolderBrowserDialog())
+            /*using (var fbd = new FolderBrowserDialog())
             {
                 DialogResult result = fbd.ShowDialog();
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
                     //Conversion c = new Conversion();
-                    await Task.Run(() => new Conversion().chrbndFolder(fbd.SelectedPath, fbd.SelectedPath + "//out", ER_working_dir, ch));
+                    await Task.Run(() => new Conversion().chrbndFolder(fbd.SelectedPath, fbd.SelectedPath + "//out", game_dir[game], g, ch));
                     //c.Merge(fbd.SelectedPath);
                 }
-            }
+            }*/
 
 
         }
@@ -356,8 +522,25 @@ namespace FLVERtoASCII
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    ER_working_dir = fbd.SelectedPath;
-                    form.Default.default_er_dir = ER_working_dir;
+                    game_dir[cb_GameList.SelectedIndex] = fbd.SelectedPath;
+                    //form.Default.default_er_dir = ER_working_dir;
+                    switch (cb_GameList.SelectedIndex)
+                    {
+                        case 0:
+                            form.Default.default_er_dir = game_dir[cb_GameList.SelectedIndex];
+                            break;
+                        case 1:
+                            form.Default.default_sek_dir = game_dir[cb_GameList.SelectedIndex];
+                            break;
+                        case 2:
+                            form.Default.default_bb_dir = game_dir[cb_GameList.SelectedIndex];
+                            break;
+                        case 3:
+                            form.Default.default_ds3_dir = game_dir[cb_GameList.SelectedIndex];
+                            break;
+                        default:
+                            break;
+                    }
                     form.Default.Save();
                 }
             }
@@ -366,8 +549,14 @@ namespace FLVERtoASCII
 
         private void loadDir()
         {
-            tempParts = Directory.GetFiles(ER_working_dir + "\\parts", "*.partsbnd");
+            tempParts = null;
+            tempParts = Directory.GetFiles(game_dir[cb_GameList.SelectedIndex] + "\\parts", "*.partsbnd");
+            tempParts ??= Directory.GetFiles(game_dir[cb_GameList.SelectedIndex] + "\\parts", "*.partsbnd.dcx");
+            mapBox.DataSource = game_maps[cb_GameList.SelectedIndex].Values.ToList();
             mapBox.Enabled = true;
+            weapons.Clear();
+            armorsets.Clear();
+            
             getBodyParts();
             getArmorSets();
             getWeapons();
@@ -382,16 +571,20 @@ namespace FLVERtoASCII
                 {
                     if (Path.GetFileName(tempParts[i]).Contains(partsPrefix[j]))
                     {
-                        if (!armorsets.Contains(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5)) && Path.GetFileNameWithoutExtension(tempParts[i]).Substring(8) == "0")
+                        if (!armorsets.Contains(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5,4)))
                         {
-                            armorsets.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5));
+                            armorsets.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5,4));
                         }
 
                     }
                 }
             }
             armorsets.Sort();
-            parts_list.DataSource = armorsets;
+            if (armorsets.Contains("0000"))
+            {
+                armorsets.Remove("0000");
+            }
+            parts_list.DataSource = new List<string>(armorsets);
         }
 
         private void getWeapons()
@@ -401,9 +594,9 @@ namespace FLVERtoASCII
             {
                     if (Path.GetFileName(tempParts[i]).Contains(weaponPrefix))
                     {
-                        if (!weapons.Contains(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5)))
+                        if (!weapons.Contains(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5,4)))
                         {
-                            weapons.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5));
+                            weapons.Add(Path.GetFileNameWithoutExtension(tempParts[i]).Substring(5,4));
                         }
 
                     }
@@ -472,7 +665,8 @@ namespace FLVERtoASCII
             int hi = hairparts.SelectedIndex;
             bool tex = cb_Tex.Checked;
             bool body = cb_BodyUnder.Checked;
-            await Task.Run(() => new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
+            int game = cb_GameList.SelectedIndex;
+            await Task.Run(() => new Conversion().armorset(game_dir[game], armorsets[ai], weapons[li], weapons[ri],
                 beards[bi], eyebrows[ei], hairs[hi], tex, "m", body));
             //c.Dispose();
             /*new Conversion().armorset(ER_working_dir, armorsets[ai], weapons[li], weapons[ri],
@@ -489,7 +683,8 @@ namespace FLVERtoASCII
             GAME g = (GAME)cb_GameList.SelectedIndex;
             string selected = (string)mapBox.SelectedItem;
             string map = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
-            await Task.Run(() => new Conversion().map(g,ER_working_dir, map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + Regex.Replace(Regex.Replace(selected, ",", ""), " ", "")));
+            int game = cb_GameList.SelectedIndex;
+            await Task.Run(() => new Conversion().map(g,game_dir[game], map, ERmaps.FirstOrDefault(x => x.Value == selected).Key + "_" + Regex.Replace(Regex.Replace(selected, ",", ""), " ", "")));
             GC.Collect();
         }
 
@@ -573,7 +768,31 @@ namespace FLVERtoASCII
 
         private void mapBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            mapInt.Text = ERmaps.FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
+            mapInt.Text = game_maps[cb_GameList.SelectedIndex].FirstOrDefault(x => x.Value == mapBox.SelectedItem).Key;
+        }
+
+        private void cb_GameList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            form.Default.last_game = cb_GameList.SelectedIndex;
+            form.Default.Save();
+            if (game_dir[cb_GameList.SelectedIndex] == "" || game_dir[cb_GameList.SelectedIndex] == null)
+            {
+                tb_GameDir.Text = "Saved game directory from config doesnt exist!!";
+                mapBox.DataSource = null;
+                //MessageBox.Show("The path for this game has not been saved yet. Please be sure to browse for the files!");
+            }
+            else
+            {
+                loadDir();
+                tb_GameDir.Text = game_dir[cb_GameList.SelectedIndex];
+            }
+        }
+
+        private void cb_BodyUnder_CheckedChanged(object sender, EventArgs e)
+        {
+            beardparts.Enabled = cb_BodyUnder.Checked;
+            hairparts.Enabled = cb_BodyUnder.Checked;
+            eyebrowparts.Enabled = cb_BodyUnder.Checked;
         }
     }
 }
