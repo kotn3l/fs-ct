@@ -127,7 +127,44 @@ namespace FLVERtoASCII
         {
             return text.Any(e => e >= min && e <= max);
         }
-
+        private void getMeshTex(FLVER2 model, int meshIndex, Dictionary<string, List<string>> texturestxt, Dictionary<int, List<MATBIN>> material)
+        {
+            if (!texturestxt.ContainsKey(model.Materials[model.Meshes[meshIndex].MaterialIndex].Name))
+            {
+                texturestxt.Add(model.Materials[model.Meshes[meshIndex].MaterialIndex].Name, new List<string>());
+            }
+            for (int l = 0; l < material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers.Count; l++)
+            {
+                if (material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Path != "")
+                {
+                    if (!texturestxt[model.Materials[model.Meshes[meshIndex].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Path)))
+                    {
+                        texturestxt[model.Materials[model.Meshes[meshIndex].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Path));
+                    }
+                }
+            }
+        }
+        private string getMeshTexToAscii(FLVER2 model, int meshIndex, Dictionary<int, List<MATBIN>> material)
+        {
+            for (int k = 0; k < material[model.GetHashCode()].Count; k++)
+            {
+                for (int l = 0; l < material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers.Count; l++)
+                {
+                    //ascii.AppendLine(material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Type);
+                    if (Path.GetFileName(material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Path) == "" ||
+                                         material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Path == "")
+                    {
+                        return material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Type + "\nUNK";
+                    }
+                    else
+                    {
+                        return material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Type + "\n" +
+                               Path.GetFileName(material[model.GetHashCode()][model.Meshes[meshIndex].MaterialIndex].Samplers[l].Path);
+                    }
+                }
+            }
+            return "UNK";
+        }
         public void WriteFLVERtoASCII(string outPath, string fileName, bool bones = false, bool addRoot = false, int index = 0, Dictionary<int, List<MATBIN>> material = null)
         {
             if (File.Exists(Path.Combine(outPath, fileName + ".ascii")))
@@ -189,23 +226,7 @@ namespace FLVERtoASCII
             ascii.AppendLine(Model[index].Meshes.Count.ToString());
             for (int i = 0; i < Model[index].Meshes.Count; i++)
             {
-                if (!texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
-                {
-                    texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());
-                }
-                for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                {
-                    if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
-                    {
-                        if (!texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path)))
-                        {
-                            texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
-                        }
-                    } //else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
-
-                }
-                //texturestxt.Add(seperator);
-
+                getMeshTex(Model[index], i, texturestxt, material);
                 int Tex = 0;
                 for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
                 {
@@ -218,22 +239,7 @@ namespace FLVERtoASCII
                 } else ascii.AppendLine(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name); 
                 ascii.AppendLine(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
                 ascii.AppendLine(Tex.ToString()); //tex count
-                for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
-                {
-                    for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                    {
-                        ascii.AppendLine(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Type);
-                        if (Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path) == "" ||
-                                             material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path == "")
-                        {
-                            ascii.AppendLine("UNK");
-                        }
-                        else
-                        {
-                            ascii.AppendLine(Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
-                        }
-                    }
-                }
+                ascii.AppendLine(getMeshTexToAscii(Model[index], i, material));
                 ascii.AppendLine(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                 for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                 {
@@ -331,28 +337,6 @@ namespace FLVERtoASCII
 
             int boneSum = 0;
             uint MeshSum = 0;
-            uint objectCopies = 0;
-            for (int i = 0; i < Model.Count; i++)
-            {
-                if (!transform.ContainsKey(Model[i].GetHashCode()))
-                {
-                    continue;
-                }
-                if (transform[Model[i].GetHashCode()].Count == 1)
-                {
-                    transformOne.Add(Model[i].GetHashCode(), transform[Model[i].GetHashCode()][0]);
-                }
-                else
-                {
-                    transformMultpile.Add(Model[i].GetHashCode(), transform[Model[i].GetHashCode()]);
-                }
-                for (int z = 0; z < transform[Model[i].GetHashCode()].Count; z++)
-                {
-                    boneSum += model[i].Bones.Count;
-                    objectCopies++;
-                }
-                
-            }
             for (int e = 0; e < Model.Count; e++)
             {
                 if (!transform.ContainsKey(Model[e].GetHashCode()))
@@ -428,28 +412,7 @@ namespace FLVERtoASCII
                 {
                     for (int i = 0; i < Model[y].Meshes.Count; i++)
                     {
-                        if (!texturestxt.ContainsKey(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name))
-                        {
-                            texturestxt.Add(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name, new List<string>());
-                        }
-                        if (material[Model[y].GetHashCode()].Count > 0)
-                        {
-                            for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                            {
-                                if (material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path != "")
-                                {
-                                    if (!texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path)))
-                                    {
-                                        texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
-                                    }
-                                }
-                                //else texturestxt[Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
-                            }
-                        }
-                        
-                        //texturestxt.Add(seperator);
-
-
+                        getMeshTex(Model[y], i, texturestxt, material);
                         int Tex = 0;
                         for (int k = 0; k < material[Model[y].GetHashCode()].Count; k++)
                         {
@@ -462,22 +425,7 @@ namespace FLVERtoASCII
                         else ascii.AppendLine(Model[y].Materials[Model[y].Meshes[i].MaterialIndex].Name);
                         ascii.AppendLine(Model[y].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
                         ascii.AppendLine(Tex.ToString()); //tex count
-                        for (int k = 0; k < material[Model[y].GetHashCode()].Count; k++)
-                        {
-                            for (int l = 0; l < material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                            {
-                                ascii.AppendLine(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Type);
-                                if (Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path) == "" || material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path == "")
-                                {
-                                    ascii.AppendLine("UNK");
-                                }
-                                else
-                                {
-                                    ascii.AppendLine(Path.GetFileName(material[Model[y].GetHashCode()][Model[y].Meshes[i].MaterialIndex].Samplers[l].Path));
-                                }
-                            }
-                        }
-
+                        ascii.AppendLine(getMeshTexToAscii(Model[y], i, material));
                         ascii.AppendLine(Model[y].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                         for (int j = 0; j < Model[y].Meshes[i].Vertices.Count; j++) //vertices
                         {
@@ -637,24 +585,7 @@ namespace FLVERtoASCII
             {
                 for (int i = 0; i < Model[index].Meshes.Count; i++)
                 {
-                    if (!texturestxt.ContainsKey(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name))
-                    {
-                        texturestxt.Add(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name, new List<string>());
-                    }
-                    for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                    {
-                        if (material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path != "")
-                        {
-                            if (!texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Contains("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path)))
-                            {
-                                texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\t" + Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
-                            }
-                        }
-                        //else texturestxt[Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name].Add("\tEMPTY_SLOT");
-
-                    }
-                    //texturestxt.Add(seperator);
-
+                    getMeshTex(Model[index], i, texturestxt, material);
                     int Tex = 0;
                     for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
                     {
@@ -667,23 +598,7 @@ namespace FLVERtoASCII
                     else ascii.AppendLine(Model[index].Materials[Model[index].Meshes[i].MaterialIndex].Name);
                     ascii.AppendLine(Model[index].Meshes[i].Vertices[0].UVs.Count.ToString()); //mesh UV channel count
                     ascii.AppendLine(Tex.ToString()); //tex count
-                    for (int k = 0; k < material[Model[index].GetHashCode()].Count; k++)
-                    {
-                        for (int l = 0; l < material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers.Count; l++)
-                        {
-                            ascii.AppendLine(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Type);
-                            if (Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path) == "" ||
-                                                 material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path == "")
-                            {
-                                ascii.AppendLine("UNK");
-                            }
-                            else
-                            {
-                                ascii.AppendLine(Path.GetFileName(material[Model[index].GetHashCode()][Model[index].Meshes[i].MaterialIndex].Samplers[l].Path));
-                            }
-                        }
-                    }
-
+                    ascii.AppendLine(getMeshTexToAscii(Model[index], i, material));
                     ascii.AppendLine(Model[index].Meshes[i].Vertices.Count.ToString()); //mesh vertices count
                     for (int j = 0; j < Model[index].Meshes[i].Vertices.Count; j++) //vertices
                     {
