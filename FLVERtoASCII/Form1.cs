@@ -314,7 +314,7 @@ namespace FLVERtoASCII
         }
         private void ER_dir()
         {
-            if (form.Default.default_er_dir != "" && Directory.Exists(form.Default.default_er_dir))
+            if (form.Default.default_er_dir != "" && Directory.Exists(form.Default.default_er_dir+"//chr"))
             {
                 game_dir[(int)GAME.ELDEN_RING] = form.Default.default_er_dir;
                 tb_GameDir.Text = form.Default.default_er_dir;
@@ -324,7 +324,7 @@ namespace FLVERtoASCII
         }
         private void SEK_dir()
         {
-            if (form.Default.default_sek_dir != "" && Directory.Exists(form.Default.default_sek_dir))
+            if (form.Default.default_sek_dir != "" && Directory.Exists(form.Default.default_sek_dir + "//chr"))
             {
                 game_dir[(int)GAME.SEKIRO] = form.Default.default_sek_dir;
                 tb_GameDir.Text = form.Default.default_er_dir;
@@ -333,7 +333,7 @@ namespace FLVERtoASCII
         }
         private void DS3_dir()
         {
-            if (form.Default.default_ds3_dir != "" && Directory.Exists(form.Default.default_ds3_dir))
+            if (form.Default.default_ds3_dir != "" && Directory.Exists(form.Default.default_ds3_dir + "//chr"))
             {
                 game_dir[(int)GAME.DARK_SOULS] = form.Default.default_ds3_dir;
                 tb_GameDir.Text = form.Default.default_er_dir;
@@ -342,7 +342,7 @@ namespace FLVERtoASCII
         }
         private void BB_dir()
         {
-            if (form.Default.default_bb_dir != "" && Directory.Exists(form.Default.default_bb_dir))
+            if (form.Default.default_bb_dir != "" && Directory.Exists(form.Default.default_bb_dir + "//chr"))
             {
                 game_dir[(int)GAME.BLOODBORNE] = form.Default.default_bb_dir;
                 tb_GameDir.Text = form.Default.default_er_dir;
@@ -449,7 +449,8 @@ namespace FLVERtoASCII
             bool ch = cb_Tex.Checked;
             int game = cb_GameList.SelectedIndex;
             GAME g = (GAME)game;
-            await Task.Run(() => new Conversion().chrbndFolder(game_dir[game] + "//chr", game_dir[game] + "//chr//out", game_dir[game], g, ch));
+            new Conversion().chrbndFolder(game_dir[game] + "//chr", game_dir[game] + "//chr//out", game_dir[game], g, ch);
+            //await Task.Run(() => new Conversion().chrbndFolder(game_dir[game] + "//chr", game_dir[game] + "//chr//out", game_dir[game], g, ch));
             //MessageBox.Show("Select a folder containing all armor pieces you want to merge -- be sure to have the flver files as well as the Bloodborne tool converted ascii-s in that one folder");
             /*using (var fbd = new FolderBrowserDialog())
             {
@@ -551,7 +552,8 @@ namespace FLVERtoASCII
         {
             tempParts = null;
             tempParts = Directory.GetFiles(game_dir[cb_GameList.SelectedIndex] + "\\parts", "*.partsbnd");
-            tempParts ??= Directory.GetFiles(game_dir[cb_GameList.SelectedIndex] + "\\parts", "*.partsbnd.dcx");
+            if (tempParts.Length < 1)
+                tempParts = Directory.GetFiles(game_dir[cb_GameList.SelectedIndex] + "\\parts", "*.partsbnd.dcx");
             mapBox.DataSource = game_maps[cb_GameList.SelectedIndex].Values.ToList();
             mapBox.Enabled = true;
             weapons.Clear();
