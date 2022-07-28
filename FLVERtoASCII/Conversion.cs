@@ -692,7 +692,10 @@ namespace FLVERtoASCII
         public void chrbndFolder(string inPath, string outPath, string erdir, GAME game, bool textures = true)
         {
             string[] tomb = Directory.GetFiles(inPath, "*.chrbnd");
-                     tomb ??= Directory.GetFiles(inPath, "*.chrbnd.dcx");
+            if (tomb.Length < 1)
+            {
+                tomb = Directory.GetFiles(inPath, "*.chrbnd.dcx");
+            }   
             string[] tombP = Directory.GetFiles(inPath, "*.partsbnd");
                      tombP ??= Directory.GetFiles(inPath, "*.partsbnd.dcx");
             string[] texs = Directory.GetFiles(inPath, "*.texbnd");
@@ -709,10 +712,20 @@ namespace FLVERtoASCII
             {
                 Directory.CreateDirectory(outPath);
             }
-
+            string matPathFirst;
+            BND4 matbnd;
+            int g = (int)game;
+            if (g == 0)
+            {
+                matPathFirst = "N:\\GR\\data\\INTERROOT_win64\\material\\matbin";
+                matbnd = BND4.Read(erdir + "//material//allmaterial.matbinbnd");
+            }
+            else
+            {
+                matPathFirst = "N:\\NTC\\data\\Material\\mtd";
+                matbnd = BND4.Read(erdir + "//mtd//allmaterialbnd.mtdbnd.dcx");
+            }
             Dictionary<int, List<MATBIN>> materials = new Dictionary<int, List<MATBIN>>();
-            BND4 matbnd = BND4.Read(erdir + "//material//allmaterial.matbinbnd");
-            string matPathFirst = "N:\\GR\\data\\INTERROOT_win64\\material\\matbin";
             
 
             for (int i = 0; i < flvers.Length; i++)
@@ -773,7 +786,10 @@ namespace FLVERtoASCII
                     }
                 }
             }
-            convertMatBin(ref materials, ref matbnd, erdir, matPathFirst, outPath, false);
+            //if (g == 0)
+            {
+                convertMatBin(ref materials, ref matbnd, erdir, matPathFirst, outPath, false, null, g);
+            }
             for (int i = 0; i < Model.Count; i++)
             {
                 WriteFLVERtoASCII(outPath, filenames[i], true, true, i, materials);
@@ -1351,7 +1367,7 @@ namespace FLVERtoASCII
         }
 
         List<string> textureNames = new List<string>();
-        private void convertMatBin(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
+        private void convertMatBin(ref Dictionary<int, List<MATBIN>> materials, ref BND4 matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null, int game = 0)
         {
             string temp = outPath;
             if (!Directory.Exists(outPath))
@@ -1380,7 +1396,11 @@ namespace FLVERtoASCII
                     }
                     try
                     {
-                        materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
+                        if (game != 0)
+                        {
+                            materials[Model[i].GetHashCode()].Add(convertMTDtoMATBIN(MTD.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst, game)).FirstOrDefault().Bytes)));
+                        }
+                        else materials[Model[i].GetHashCode()].Add(MATBIN.Read(matbnd.Files.Where(x => x.Name == getTexturePaths(Model[i].Materials[j].MTD, matPathFirst)).FirstOrDefault().Bytes));
                     }
                     catch (Exception e)
                     {
@@ -1428,9 +1448,49 @@ namespace FLVERtoASCII
                 //transforms[Model[i].GetHashCode()].Add(Matrix4x4.Identity);
             }
         }
-        private void convertMtdBnd(ref Dictionary<int, List<MTD>> materials, ref MTD matbnd, string erdir, string matPathFirst, string outPath, bool extract = false, List<string> fails = null)
+        private MATBIN convertMTDtoMATBIN(MTD mtd)
         {
-
+            MATBIN mb = new MATBIN();
+            foreach (var texture in mtd.Textures)
+            {
+                mb.Samplers.Add(new MATBIN.Sampler());
+                mb.Samplers.Last().Path = texture.Path;
+                mb.Samplers.Last().Type = texture.Type;
+            }
+            mb.Compression = mtd.Compression;
+            foreach (var param in mtd.Params)
+            {
+                mb.Params.Add(new MATBIN.Param());
+                mb.Params.Last().Name = param.Name;
+                switch (param.Type)
+                {
+                    case MTD.ParamType.Bool:
+                        mb.Params.Last().Type = MATBIN.ParamType.Bool;
+                        break;
+                    case MTD.ParamType.Int:
+                        mb.Params.Last().Type = MATBIN.ParamType.Int;
+                        break;
+                    case MTD.ParamType.Int2:
+                        mb.Params.Last().Type = MATBIN.ParamType.Int2;
+                        break;
+                    case MTD.ParamType.Float:
+                        mb.Params.Last().Type = MATBIN.ParamType.Float;
+                        break;
+                    case MTD.ParamType.Float2:
+                        mb.Params.Last().Type = MATBIN.ParamType.Float2;
+                        break;
+                    case MTD.ParamType.Float3:
+                        mb.Params.Last().Type = MATBIN.ParamType.Float3;
+                        break;
+                    case MTD.ParamType.Float4:
+                        mb.Params.Last().Type = MATBIN.ParamType.Float4;
+                        break;
+                    default:
+                        throw new NotImplementedException("Unknown mtd param!");
+                }
+                mb.Params.Last().Value = param.Value;
+            }
+            return mb;
         }
         private string decideLang(LANG language)
         {
@@ -1476,9 +1536,21 @@ namespace FLVERtoASCII
             item = BND4.Read(erdir + $"//msg//{lang}//item.msgbnd.dcx");
             return fmgOut(item, erdir, "item", lang);
         }
-        private static string getTexturePaths(string MTD, string firstPathPart)
+        private static string getTexturePaths(string MTD, string firstPathPart, int game = 0)
         {
-            string temp = MTD.Substring(23);
+            //string temp = MTD.Substring(23);
+            string[] tempB = MTD.Split(new string[] { "\\" }, StringSplitOptions.None);
+
+            if (game != 0)
+            {
+                return tempB.Last();
+            }
+
+            string temp = "";
+            for (int i = 5; i < tempB.Length; i++)
+            {
+                temp += "//" + tempB[i];
+            }
             string tempMat = "";
             if (Path.GetExtension(temp) == ".mtd")
             {
